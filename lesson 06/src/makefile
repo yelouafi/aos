@@ -1,0 +1,29 @@
+CPPFLAGS = -c -fno-builtin -fno-rtti -fno-exceptions
+
+.PHONY:  clean
+
+OBJS = multiboot.o system.o Machine.o pic.o Kernel.o IntManager.o main.o  FontMap.o video.o isrs.o\
+ exception.o timer.o PFrameStack.o PhysMManager.o errors.o\
+ Pager.o
+
+
+all: kernel.elf
+
+kernel.elf: $(OBJS) link.lds
+	ld -T link.lds $(OBJS) -o kernel.tmp
+	objcopy -O elf32-i386 kernel.tmp kernel.elf
+	$(RM) kernel.tmp
+	"C:\Program Files\WinImage\winimage.exe" floppy.flp /i kernel.elf /h
+	 objdump.exe -D kernel.elf > log.txt
+	
+clean:
+	$(RM) $(OBJS)
+	
+	
+%.o: %.cpp
+	g++ $(CPPFLAGS)  $< -o $@
+
+
+	
+%.o: %.s
+	nasm -f elf  -DLEADING_USCORE $< -o $@

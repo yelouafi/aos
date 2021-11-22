@@ -1,0 +1,107 @@
+00000000000i[     ] Bochs x86 Emulator 2.2.5.cvs
+00000000000i[     ]   Build from CVS snapshot, after 2.2.5
+00000000000i[     ] System configuration
+00000000000i[     ]   processors: 1
+00000000000i[     ]   A20 line support: yes
+00000000000i[     ]   APIC support: yes
+00000000000i[     ] CPU configuration
+00000000000i[     ]   level: 5
+00000000000i[     ]   fpu support: yes
+00000000000i[     ]   paging support: yes, tlb enabled: yes
+00000000000i[     ]   mmx support: yes
+00000000000i[     ]   sse support: no
+00000000000i[     ]   v8086 mode support: yes
+00000000000i[     ]   VME support: no
+00000000000i[     ]   3dnow! support: no
+00000000000i[     ]   PAE support: no
+00000000000i[     ]   PGE support: no
+00000000000i[     ]   PSE support: yes
+00000000000i[     ]   x86-64 support: no
+00000000000i[     ]   SEP support: no
+00000000000i[     ] Optimization configuration
+00000000000i[     ]   Guest2HostTLB support: no
+00000000000i[     ]   RepeatSpeedups support: no
+00000000000i[     ]   Icache support: no
+00000000000i[     ]   Host Asm support: yes
+00000000000i[     ]   Fast function calls: no
+00000000000i[     ] Devices configuration
+00000000000i[     ]   NE2000 support: no
+00000000000i[     ]   PCI support: no
+00000000000i[     ]   SB16 support: no
+00000000000i[     ]   USB support: no
+00000000000i[     ]   VGA extension support: vbe 
+00000000000i[MEM0 ] allocated memory at 00D40020. after alignment, vector=00D41000
+00000000000i[MEM0 ] 32.00MB
+00000000000i[MEM0 ] rom at 0xf0000/65536 ('C:\cygwin\usr\local\share\bochs/BIOS-bochs-latest')
+00000000000i[MEM0 ] rom at 0xc0000/32768 ('C:\cygwin\usr\local\share\bochs/VGABIOS-lgpl-latest')
+00000000000i[APIC?] set APIC ID to 0
+00000000000i[APIC0] 80586
+00000000000i[APIC0] local apic in CPU apicid=00 initializing
+00000000000i[APIC0] local apic in CPU 0 initializing
+00000000000i[IOAP ] initializing I/O APIC
+00000000000i[IOAP ] set APIC ID to 1
+00000000000i[CMOS ] Using local time for initial clock
+00000000000i[CMOS ] Setting initial clock to: Thu Apr 06 21:14:11 2006 (time0=1144358051)
+00000000000i[DMA  ] channel 4 used by cascade
+00000000000i[DMA  ] channel 2 used by Floppy Drive
+00000000000i[FDD  ] fd0: 'floppy.flp' ro=0, h=2,t=80,spt=18
+00000000000i[WGUI ] Number of Mouse Buttons = 3
+00000000000i[WGUI ] IME disabled
+00000000000i[VGA  ] interval=300000
+00000000000i[VGA  ] VBE Bochs Display Extension Enabled
+00000000000i[     ] init_mem of 'harddrv' plugin device by virtual method
+00000000000i[     ] init_mem of 'keyboard' plugin device by virtual method
+00000000000i[     ] init_mem of 'serial' plugin device by virtual method
+00000000000i[     ] init_mem of 'parallel' plugin device by virtual method
+00000000000i[     ] init_mem of 'extfpuirq' plugin device by virtual method
+00000000000i[     ] init_mem of 'speaker' plugin device by virtual method
+00000000000i[     ] init_dev of 'harddrv' plugin device by virtual method
+00000000000i[HD   ] Using boot sequence floppy, none, none
+00000000000i[HD   ] Floppy boot signature check is enabled
+00000000000i[     ] init_dev of 'keyboard' plugin device by virtual method
+00000000000i[KBD  ] will paste characters every 1000 keyboard ticks
+00000000000i[     ] init_dev of 'serial' plugin device by virtual method
+00000000000i[SER  ] com1 at 0x03f8 irq 4
+00000000000i[     ] init_dev of 'parallel' plugin device by virtual method
+00000000000i[PAR  ] parallel port 1 at 0x0378 irq 7
+00000000000i[     ] init_dev of 'extfpuirq' plugin device by virtual method
+00000000000i[     ] init_dev of 'speaker' plugin device by virtual method
+00000000000i[     ] reset of 'harddrv' plugin device by virtual method
+00000000000i[     ] reset of 'keyboard' plugin device by virtual method
+00000000000i[     ] reset of 'serial' plugin device by virtual method
+00000000000i[     ] reset of 'parallel' plugin device by virtual method
+00000000000i[     ] reset of 'extfpuirq' plugin device by virtual method
+00000000000i[     ] reset of 'speaker' plugin device by virtual method
+00000003740i[BIOS ] $Revision: 1.158 $ $Date: 2005/12/26 10:35:51 $
+00000320071i[KBD  ] reset-disable command received
+00000432242i[VBIOS] VGABios $Id: vgabios.c,v 1.63 2005/12/26 19:50:26 vruppert Exp $
+00000432313i[VGA  ] VBE known Display Interface b0c0
+00000432345i[VGA  ] VBE known Display Interface b0c3
+00000435270i[VBIOS] VBE Bios $Id: vbe.c,v 1.48 2005/12/26 19:50:26 vruppert Exp $
+00003000000i[WGUI ] dimension update x=720 y=400 fontheight=16 fontwidth=9 bpp=8
+00023603969i[BIOS ] int13_harddisk: function 41, unmapped device for ELDL=80
+00023608725i[BIOS ] int13_harddisk: function 08, unmapped device for ELDL=80
+00023613367i[BIOS ] *** int 15h function AX=00C0, BX=0000 not yet supported!
+00087000000i[WGUI ] dimension update x=640 y=400 fontheight=16 fontwidth=8 bpp=8
+00153523033e[WGUI ] Sim window's client size(0, 0) was different from the stretched size(640, 400) !!
+00468780000p[WGUI ] >>PANIC<< Window closed, exiting!
+00468780000i[SYS  ] Last time is 1144358097
+00468780000i[CPU0 ] protected mode
+00468780000i[CPU0 ] CS.d_b = 32 bit
+00468780000i[CPU0 ] SS.d_b = 32 bit
+00468780000i[CPU0 ] | EAX=00000003  EBX=00ce9028  ECX=0010a31f  EDX=000003d5
+00468780000i[CPU0 ] | ESP=0011afc8  EBP=0011aff0  ESI=000003e7  EDI=0002bed3
+00468780000i[CPU0 ] | IOPL=0 vm rf ac nt of df IF tf sf zf af pf cf
+00468780000i[CPU0 ] | SEG selector     base    limit G D
+00468780000i[CPU0 ] | SEG sltr(index|ti|rpl)     base    limit G D
+00468780000i[CPU0 ] |  CS:0008( 0001| 0|  0) 00000000 000fffff 1 1
+00468780000i[CPU0 ] |  DS:0010( 0002| 0|  0) 00000000 000fffff 1 1
+00468780000i[CPU0 ] |  SS:0010( 0002| 0|  0) 00000000 000fffff 1 1
+00468780000i[CPU0 ] |  ES:0010( 0002| 0|  0) 00000000 000fffff 1 1
+00468780000i[CPU0 ] |  FS:0010( 0002| 0|  0) 00000000 000fffff 1 1
+00468780000i[CPU0 ] |  GS:0010( 0002| 0|  0) 00000000 000fffff 1 1
+00468780000i[CPU0 ] | EIP=00100ece (00100ece)
+00468780000i[CPU0 ] | CR0=0x80010011 CR1=0 CR2=0x00000000
+00468780000i[CPU0 ] | CR3=0x01fff000 CR4=0x00000000
+00468780000i[     ] restoring default signal behavior
+00468780000i[CTRL ] quit_sim called with exit code 1
