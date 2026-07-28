@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 310" width="1120" height="310" role="img" aria-labelledby="boot-flow-title boot-flow-desc">
+  <title id="boot-flow-title">Boot flow from BIOS to the kernel</title>
+  <desc id="boot-flow-desc">The BIOS loads sector one at physical address 7C00. The boot sector uses interrupt 13h to load sector two at physical address 1000, then performs a far jump to the kernel.</desc>
+  <defs>
+    <marker id="boot-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="310" fill="#ffffff"/>
+
+  <rect x="25" y="65" width="220" height="150" rx="18" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="135" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#1e3a8a">BIOS</text>
+  <text x="135" y="146" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#334155">loads disk sector 1</text>
+  <text x="135" y="178" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#1d4ed8">physical 0x7C00</text>
+
+  <line x1="245" y1="140" x2="330" y2="140" stroke="#64748b" stroke-width="4" marker-end="url(#boot-arrow)"/>
+
+  <rect x="340" y="35" width="280" height="210" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text x="480" y="82" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#0f172a">Boot sector</text>
+  <text x="480" y="120" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#475569">INT 13h / AH=02h</text>
+  <text x="480" y="154" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#334155">reads disk sector 2</text>
+  <rect x="390" y="177" width="180" height="42" rx="10" fill="#e2e8f0"/>
+  <text x="480" y="204" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#0f172a">jmp 0x0100:0</text>
+
+  <line x1="620" y1="140" x2="705" y2="140" stroke="#64748b" stroke-width="4" marker-end="url(#boot-arrow)"/>
+
+  <rect x="715" y="65" width="380" height="150" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+  <text x="905" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#065f46">Kernel</text>
+  <text x="905" y="146" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#334155">runs from sector 2</text>
+  <text x="905" y="178" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#047857">physical 0x1000</text>
+
+  <text x="560" y="292" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#64748b">BIOS -&gt; boot sector -&gt; disk read -&gt; far jump -&gt; kernel</text>
+</svg>
