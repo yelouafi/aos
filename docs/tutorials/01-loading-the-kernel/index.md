@@ -1,3 +1,9 @@
+---
+title: Loading the Kernel from a Floppy Disk
+description: Build a 16-bit x86 boot sector that loads and starts a tiny kernel from a floppy disk.
+status: new
+---
+
 <div align="center">
 
 <sub>AOS TUTORIALS · LESSON 01</sub>
@@ -40,7 +46,7 @@ loads a boot sector.
 The previous lesson produced a boot sector that displayed a line of text with BIOS
 video service `INT 10h`, function `AH = 0Eh`.
 
-<details>
+<details markdown="1">
 <summary><strong>Show the previous lesson's boot-sector program</strong></summary>
 
 ```nasm
@@ -130,8 +136,9 @@ Data is ordered first by sector, then by head, then by cylinder. On a floppy, th
 sequence begins with sector 1 on head 0 of cylinder 0. After the last sector on that
 track, it continues on head 1 of the same cylinder, then moves to cylinder 1.
 
-> [!IMPORTANT]
-> Sector numbers begin at **1**. Cylinder and head numbers begin at **0**.
+!!! important
+
+    Sector numbers begin at **1**. Cylinder and head numbers begin at **0**.
 
 ## 3. Reading sectors with BIOS INT 13h
 
@@ -383,9 +390,10 @@ The resulting `aos.img` is 1,024 bytes. It contains the boot sector followed
 immediately by the kernel sector and can be attached as a raw floppy image in an x86
 emulator such as Bochs.
 
-> [!WARNING]
-> The next command writes directly to a device. Confirm the device name before
-> running it. Selecting the wrong target can destroy data.
+!!! warning
+
+    The next command writes directly to a device. Confirm the device name before
+    running it. Selecting the wrong target can destroy data.
 
 To write the image to floppy drive A on a Unix-like system:
 

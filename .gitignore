@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Documentation build output
+site/
+.venv/

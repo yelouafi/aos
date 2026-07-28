@@ -1,7 +1,7 @@
 # Editorial Notes for Lesson 01
 
 These notes accompany the English translation,
-[Loading the Kernel from a Floppy Disk](./loading-the-kernel-from-a-floppy-disk.md).
+[Loading the Kernel from a Floppy Disk](../docs/tutorials/01-loading-the-kernel/index.md).
 They document translation choices, technical corrections, and presentation changes
 without interrupting the tutorial itself.
 
@@ -39,10 +39,10 @@ described in the PDF, even though the repository's historical `kernel.s` file us
 - Register descriptions and code explanations were converted into tables.
 - Long code samples were normalized and consistently formatted.
 - The original bitmap drawings were replaced by two accessible SVG diagrams:
-  [boot flow](./assets/boot-flow.svg) and
-  [disk geometry](./assets/disk-geometry.svg).
+  [boot flow](../docs/tutorials/01-loading-the-kernel/assets/boot-flow.svg) and
+  [disk geometry](../docs/tutorials/01-loading-the-kernel/assets/disk-geometry.svg).
 - Repository-relative SVG references are used so the diagrams render on GitHub.
-- Warnings and important details use GitHub Markdown callouts.
+- Warnings and important details use Material for MkDocs admonitions.
 
 ## Validation
 

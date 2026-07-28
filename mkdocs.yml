@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+site_name: AOS Kernel Tutorials
+site_description: English translations of the AOS operating-system development tutorials.
+site_url: https://yelouafi.github.io/aos/
+
+repo_name: yelouafi/aos
+repo_url: https://github.com/yelouafi/aos
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  language: en
+  icon:
+    logo: material/book-open-page-variant
+    repo: fontawesome/brands/github
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.tracking
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - content.action.edit
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Tutorials:
+      - Overview: tutorials/index.md
+      - "01 - Loading the Kernel": tutorials/01-loading-the-kernel/index.md
+  - Translation status: translation-status.md
+
+extra:
+  status:
+    new: Recently translated
+
+copyright: Copyright &copy; AOS tutorial authors and translators
