@@ -10,7 +10,7 @@ status: new
 
 <h1>Loading the Kernel from a Floppy Disk</h1>
 
-<p><strong>English translation of the original Arabic lesson</strong></p>
+<p><strong>Read a second program from disk, then hand it the machine</strong></p>
 
 <p>
   <kbd>16-bit x86</kbd>
@@ -23,7 +23,8 @@ status: new
 
 ## What you will build
 
-By the end of the lesson, you will have two 512-byte programs:
+By the end of the lesson, you will have two 512-byte programs working
+together instead of one working alone:
 
 | Disk sector | Program | Loaded at | Responsibility |
 |---:|---|---:|---|
@@ -32,12 +33,16 @@ By the end of the lesson, you will have two 512-byte programs:
 
 This lesson continues
 [Lesson 00 - Writing Your First Boot Sector](../00-writing-a-boot-sector/index.md),
-which stopped after printing a message from the boot sector. Here we take the next
-natural step: load another program from disk and transfer control to it.
+which stopped right after printing a message from a boot sector and then
+halting - a real result, but a dead end. Every boot sector is capped at 512
+bytes, and a real operating system needs far more room than that. So here we
+take the next natural step: use those precious 512 bytes not to *do* the
+work, but to go fetch a second program that can.
 
-Lesson 00 introduced the PC components, memory addresses, registers, stack, assembly
-syntax, and BIOS boot process used here. Keep it nearby if any of those ideas still
-feel new.
+Lesson 00 introduced the PC's components, memory addresses, registers, the
+stack, assembly syntax, and the BIOS boot process that all of this rests on.
+Keep it nearby if any of those ideas still feel new - this lesson leans on
+every one of them.
 
 <p align="center">
   <img src="./assets/boot-flow.svg" alt="Boot flow: BIOS loads the boot sector, the boot sector reads the kernel, then execution jumps to the kernel." width="100%">
@@ -45,8 +50,9 @@ feel new.
 
 ## 1. Starting point
 
-The previous lesson produced a boot sector that displayed a line of text with BIOS
-video service `INT 10h`, function `AH = 0Eh`.
+The previous lesson produced a boot sector that displayed a line of text with
+BIOS video service `INT 10h`, function `AH = 0Eh`, then stopped forever. It
+worked, but it never left its own 512 bytes.
 
 <details markdown="1">
 <summary><strong>Show the previous lesson's boot-sector program</strong></summary>
@@ -113,23 +119,30 @@ We will extend that program in two stages:
 
 ## 2. How a disk is organized
 
-Inside a floppy's plastic shell is a flexible disk coated with magnetic material,
-similar in principle to magnetic tape. The drive encodes stored data as magnetic
-patterns and decodes those patterns back into binary data when reading.
+Inside a floppy's plastic shell is a flexible disk coated with magnetic
+material, similar in principle to magnetic tape. The drive encodes stored
+data as magnetic patterns and decodes those patterns back into binary data
+when reading - a floppy disk is really just a very small, very slow hard
+drive wearing a different costume.
 
-The drive contains:
+The drive itself contains:
 
 - A motor that spins the disk at a fixed speed.
 - Two read/write heads, one for each side of the floppy.
-- A mechanical arm that moves the heads between the outer edge and the center.
+- A mechanical arm that moves the heads between the outer edge and the
+  center.
 
-Each disk surface is divided into concentric **tracks**. Each track is divided into
-**sectors**, and every sector on a standard floppy holds the same amount of data.
-For this lesson, one sector is **512 bytes**.
+Each disk surface is divided into concentric **tracks**, the way a vinyl
+record has grooves circling its surface. Each track is further divided into
+**sectors**, and every sector on a standard floppy holds the same amount of
+data. For this lesson, one sector is **512 bytes** - the same size, not
+coincidentally, as our boot sector.
 
-Hard disks follow the same general idea, but use rigid platters that can rotate much
-faster. A hard disk normally contains several platter surfaces stacked above one
-another. Tracks at the same radius on all surfaces form a **cylinder**.
+Hard disks follow the same general idea, but use rigid platters that can spin
+much faster. A hard disk normally stacks several platter surfaces on top of
+one another, like a tower of vinyl records sharing a single spindle. Tracks
+sitting at the same radius on every surface, stacked directly above each
+other, form a **cylinder**.
 
 <p align="center">
   <img src="./assets/disk-geometry.svg" alt="A disk surface divided into tracks and sectors, beside stacked platter surfaces forming a cylinder." width="100%">
@@ -143,20 +156,29 @@ The BIOS interface used in this lesson identifies a sector with three values:
 2. **Head** - the selected disk surface.
 3. **Sector** - the selected sector within that track.
 
-This scheme is called **CHS**, for cylinder-head-sector.
+This scheme is called **CHS**, for cylinder-head-sector - three coordinates
+that together pin down one exact 512-byte block on the disk, the same way a
+row, column, and aisle number pin down one shelf in a warehouse.
 
-Data is ordered first by sector, then by head, then by cylinder. On a floppy, the
-sequence begins with sector 1 on head 0 of cylinder 0. After the last sector on that
-track, it continues on head 1 of the same cylinder, then moves to cylinder 1.
+Data is ordered first by sector, then by head, then by cylinder. On a floppy,
+the sequence begins with sector 1 on head 0 of cylinder 0. After the last
+sector on that track, it continues on head 1 of the same cylinder, then moves
+to cylinder 1.
 
 !!! important
 
     Sector numbers begin at **1**. Cylinder and head numbers begin at **0**.
+    This asymmetry trips up almost everyone the first time - there is no
+    "sector 0."
 
 ## 3. Reading sectors with BIOS INT 13h
 
-In real mode, BIOS interrupt `INT 13h` provides disk services. Function `AH = 02h`
-reads one or more sectors with CHS addressing.
+In real mode, BIOS interrupt `INT 13h` provides disk services, the disk
+equivalent of the `INT 10h` video service from Lesson 00. Function `AH = 02h`
+reads one or more sectors using CHS addressing.
+
+Like any BIOS call, it works as a small request form filled out in
+registers before you hand it to `INT 13h`:
 
 ### Inputs
 
@@ -177,7 +199,13 @@ reads one or more sectors with CHS addressing.
 | `CF = 0` | The read succeeded and the requested data is in memory. |
 | `CF = 1` | The read failed; `AH` contains a BIOS status code. |
 
-At this point the disk layout is simple:
+Unlike the video service, this one can fail - a floppy drive is a mechanical
+thing, and mechanical things jam. The carry flag is how the BIOS reports
+that back to us, and checking it after every `INT 13h` call is not optional
+caution; it is the only way to notice a bad read before jumping into
+whatever garbage happened to land in memory.
+
+At this point the disk layout is simple - two sectors, back to back:
 
 ```text
 +----------------------+----------------------+
@@ -201,9 +229,11 @@ The boot sector asks the BIOS to copy sector 2 into `ES:BX = 0x0100:0x0000`.
 
 ## 4. Writing the boot sector
 
-The BIOS places the boot drive number in `DL`. Save it before performing any disk
-operation, but only **after** initializing `DS`; the BIOS does not guarantee the
-initial value of `DS`.
+The BIOS places the boot drive number in `DL` the moment our code starts
+running. Save it before performing any disk operation, but only **after**
+initializing `DS` - the BIOS does not guarantee the initial value of `DS`,
+and a `mov [bootdrv], dl` executed too early could quietly write to the wrong
+place entirely.
 
 The completed boot sector:
 
@@ -289,10 +319,14 @@ times 510 - ($ - $$) db 0
 dw 0xAA55
 ```
 
-The final word `0xAA55` is the boot signature. Because x86 stores words in
-little-endian order, it appears on disk as bytes `55 AA` at offsets 510 and 511.
+The final word `0xAA55` is the boot signature, exactly as in Lesson 00.
+Because x86 stores words in little-endian order, it appears on disk as bytes
+`55 AA` at offsets 510 and 511.
 
 ### What the new code does
+
+Everything above `mov si, bootMsg` should already look familiar from Lesson
+00. Here is what got added on top of it:
 
 | Code | Purpose |
 |---|---|
@@ -304,11 +338,17 @@ little-endian order, it appears on disk as bytes `55 AA` at offsets 510 and 511.
 | `jc readFail` | Check the carry flag and report a disk error. |
 | `jmp 0x0100:0` | Perform a 16:16 far jump to the loaded kernel. |
 
+That last jump is the entire point of the lesson in one line: it is the exact
+moment control leaves the boot sector's 512 bytes for good and hands the
+machine to a second, independently loaded program.
+
 ## 5. Writing the kernel
 
-The kernel begins at offset 0 within segment `0x0100`, so its source uses `ORG 0`.
-It initializes the data segments and stack, prints a message with the same BIOS
-video service, and then stops in an infinite loop.
+The kernel begins at offset 0 within segment `0x0100`, so its source uses
+`ORG 0`. It initializes the data segments and stack exactly the way the boot
+sector did, prints a message with the same BIOS video service, and then stops
+in an infinite loop - the same shape as Lesson 00's program, just now living
+somewhere else in memory.
 
 ```nasm
 ; kernel.s
@@ -362,14 +402,22 @@ kernelMsg db "Kernel loaded.", 13, 10, 0
 times 512 - ($ - $$) db 0
 ```
 
-Because both programs use `ShowMsg`, you can move it to a shared include file:
+Notice that this "kernel" is really just another boot-sector-shaped program -
+nothing about the format changes. What makes it a kernel in this lesson is
+only its role: it is the thing the boot sector hands control to, not
+anything intrinsically different about its bytes. Later lessons will start
+asking much more of it.
+
+Because both programs use `ShowMsg`, you can move it to a shared include
+file:
 
 ```nasm
 %include "showmsg.inc"
 ```
 
-For a first experiment, keeping the routine in both source files makes each listing
-self-contained.
+For a first experiment, keeping the routine in both source files makes each
+listing self-contained and easier to read start to finish without flipping
+between files.
 
 ## 6. Assemble the programs
 
@@ -400,13 +448,13 @@ cat boot.bin kernel.bin > aos.img
 ```
 
 The resulting `aos.img` is 1,024 bytes. It contains the boot sector followed
-immediately by the kernel sector and can be attached as a raw floppy image in an x86
-emulator such as Bochs.
+immediately by the kernel sector and can be attached as a raw floppy image in
+an x86 emulator such as Bochs.
 
 !!! warning
 
-    The next command writes directly to a device. Confirm the device name before
-    running it. Selecting the wrong target can destroy data.
+    The next command writes directly to a device. Confirm the device name
+    before running it. Selecting the wrong target can destroy data.
 
 To write the image to floppy drive A on a Unix-like system:
 
@@ -440,10 +488,13 @@ The machine now follows this sequence:
 4. A far jump transfers control to `0x0100:0x0000`.
 5. The kernel prints `Kernel loaded.` and remains in its infinite loop.
 
-The kernel does very little, but the important boundary has been crossed: code is no
-longer limited to the 512-byte boot sector. Later lessons can grow the loader, load a
-larger kernel, and switch the x86 processor into protected mode.
+The kernel does very little on its own, but the boundary that mattered has
+already been crossed: code is no longer limited to the 512 bytes the BIOS is
+willing to load automatically. Anything the boot sector can read from disk,
+it can now hand control to - a larger kernel, a different program, or, in the
+next lesson, a completely different CPU mode.
 
 [Lesson 02 - Entering 32-bit Protected Mode](../02-entering-protected-mode/index.md)
-builds the required descriptor table, changes the processor's operating mode, and
-writes directly to VGA text memory from a 32-bit kernel.
+builds the required descriptor table, changes the processor's operating
+mode, and writes directly to VGA text memory from a 32-bit kernel.
+</content>

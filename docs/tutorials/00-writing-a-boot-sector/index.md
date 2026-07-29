@@ -24,10 +24,20 @@ status: new
 ## Before we begin
 
 This lesson assumes that you have **no previous system-programming or assembly
-knowledge**. If you can open a terminal and edit a text file, you are ready.
+knowledge**. If you can open a terminal and edit a text file, you already have
+everything you need.
 
-We will begin with the pieces inside a PC and gradually work toward a small program
-that starts without Windows, Linux, or any other operating system.
+Most programming happens comfortably on top of an operating system, which
+quietly handles the messy details of hardware for you. Here, we are going
+underneath all of that - to the handful of ideas an operating system itself is
+built from. It is a different kind of programming: slower to start, closer to
+the metal, and - once the first message appears on screen - surprisingly
+satisfying.
+
+We will start with the physical pieces inside a PC and work, one small idea at
+a time, toward a program that starts up with no Windows, no Linux, and no
+operating system of any kind underneath it - just the CPU, memory, and a
+handful of instructions you wrote yourself.
 
 By the end, you will understand:
 
@@ -48,45 +58,59 @@ You will also produce:
 !!! note "Take your time"
 
     The program is short, but every line interacts directly with the machine.
-    Understanding the ideas matters more than memorizing the instructions.
+    Nothing here is padding for its own sake - understanding *why* each line is
+    necessary matters far more than memorizing what it does. If a section asks
+    you to slow down, it's because that is usually where the real
+    understanding lives.
 
 ## 1. The main parts of a PC
 
-An application normally sits on top of an operating system. The operating system
-handles the hardware, so the application rarely needs to know how the machine starts
-or how a character reaches the screen.
+An application normally sits on top of an operating system. The operating
+system handles the hardware, so the application rarely needs to know how the
+machine starts or how a character reaches the screen.
 
-We are going below that layer. Five parts are especially important:
+We are going below that layer, down to the five parts that make it all
+possible:
 
 ### CPU
 
-The **central processing unit**, or CPU, executes instructions. An instruction might
-copy a number, compare two values, read a byte from memory, or jump to another part
-of a program.
+The **central processing unit**, or CPU, executes instructions - and only
+instructions. It doesn't understand your code's intent, only bytes whose bit
+patterns tell it to copy a number, compare two values, read a byte from
+memory, or jump to another part of a program.
 
-The CPU repeatedly performs a simple cycle:
+Left to itself, the CPU just repeats one simple cycle, forever:
 
 1. Fetch the next instruction from memory.
 2. Decode what the instruction means.
 3. Execute it.
-4. Continue with the next instruction, unless the current instruction says to jump.
+4. Continue with the next instruction, unless the current instruction says to
+   jump.
 
-The CPU can execute only **machine code**: bytes whose bit patterns represent
-instructions. It cannot directly execute a NASM source file.
+Everything a computer ever does - a boot sector printing one line, or an
+operating system running a thousand programs at once - is this same four-step
+cycle, running billions of times per second. The CPU can execute only
+**machine code**: bytes whose bit patterns represent instructions. It cannot
+directly execute a NASM source file, no matter how carefully you write it.
 
 ### Memory (RAM)
 
-**RAM** is the machine's temporary working area. Programs must be copied into RAM
-before the CPU can execute them. The contents disappear when power is removed.
+**RAM** is the machine's temporary working area - closer to a desk you spread
+papers out on than a place you store them long-term. Programs must be copied
+into RAM before the CPU can execute them, and everything on that desk is
+cleared the moment power is removed.
 
-Memory is a long sequence of numbered byte-sized locations. The number of a location
-is its **address**. If a byte is stored at address `0x7C00`, the CPU can use that
-address to find it again.
+Memory is a long sequence of numbered byte-sized locations. The number of a
+location is its **address**. If a byte is stored at address `0x7C00`, the CPU
+can use that address to find it again - the same way a house number lets a
+letter carrier find one specific house on a very long street.
 
 ### Storage
 
-A floppy disk, hard disk, or solid-state drive provides persistent **storage**.
-Its contents remain after the machine is turned off.
+A floppy disk, hard disk, or solid-state drive provides persistent
+**storage** - the filing cabinet to RAM's desk. Its contents remain after the
+machine is turned off, which is exactly why our program has to start there
+before it can run anywhere.
 
 Storage and RAM are not interchangeable:
 
@@ -96,30 +120,34 @@ Storage and RAM are not interchangeable:
 | Read through a storage controller or firmware service | Read directly by the CPU |
 | Usually much larger but slower | Usually smaller but faster |
 
-At startup, our code is on storage. Before it can run, something must copy it into
-RAM.
+At startup, our code is on storage. Before it can run, something must copy it
+into RAM - and figuring out what that "something" is turns out to be the whole
+point of this lesson.
 
 ### Firmware (BIOS)
 
-The **BIOS** is firmware supplied with a traditional PC. It is the first software
-that runs after power-on. It initializes hardware, chooses a boot device, and loads
-the first piece of our program.
+The **BIOS** is firmware supplied with a traditional PC - the first thing
+awake in the building, so to speak. It is the first software that runs after
+power-on: it initializes hardware, chooses a boot device, and loads the first
+piece of our program into that desk we just described.
 
-The BIOS also provides small routines for tasks such as reading a disk sector or
-printing a character. Our first program will ask one of those routines to display
-text.
+The BIOS also provides small routines for tasks such as reading a disk sector
+or printing a character - conveniences it's happy to lend out before anything
+else exists to do the job. Our first program will ask one of those routines to
+display text on our behalf.
 
 ### Peripherals
 
-The display, keyboard, disk drive, and similar devices are **peripherals**. The CPU
-communicates with them through controllers. In this lesson we let the BIOS handle
-the display controller for us.
+The display, keyboard, disk drive, and similar devices are **peripherals**.
+The CPU never touches them directly; it always goes through a controller
+built for that specific piece of hardware. In this lesson we let the BIOS
+deal with the display controller so we don't have to yet.
 
 <p align="center">
   <img src="./assets/pc-architecture.svg" alt="A beginner-level PC architecture diagram: the BIOS copies a boot sector from storage to RAM, the CPU fetches its instructions from RAM, and the program uses a BIOS service to send characters to the display." width="100%">
 </p>
 
-The important path is:
+The important path, the one this whole lesson is really about, is:
 
 ```text
 disk storage → BIOS copies bytes → RAM → CPU executes bytes → screen output
@@ -127,12 +155,13 @@ disk storage → BIOS copies bytes → RAM → CPU executes bytes → screen out
 
 ## 2. Bits, bytes, and hexadecimal
 
-Computers store information with two states, written as `0` and `1`. One such state
-is a **bit**. Eight bits make one **byte**.
+Computers store information with two states, written as `0` and `1`. One such
+state is a **bit**. Eight bits make one **byte**.
 
-A byte can hold 256 different bit patterns, from `00000000` through `11111111`.
-Writing long binary values is inconvenient, so system programmers commonly use
-**hexadecimal**, a base-16 number system.
+A byte can hold 256 different bit patterns, from `00000000` through
+`11111111`. Writing long binary values by hand gets tedious and error-prone
+fast, so system programmers commonly use **hexadecimal**, a base-16 number
+system that packs the same information into far fewer digits.
 
 Hexadecimal uses the digits `0-9` followed by `A-F`:
 
@@ -144,48 +173,55 @@ Hexadecimal uses the digits `0-9` followed by `A-F`:
 | 16 | `0x10` | `00010000` |
 | 255 | `0xFF` | `11111111` |
 
-The prefix `0x` tells the reader that a number is hexadecimal. NASM also accepts an
-`h` suffix, but this tutorial consistently uses the `0x` form.
+The prefix `0x` tells the reader that a number is hexadecimal. NASM also
+accepts an `h` suffix, but this tutorial consistently uses the `0x` form.
 
-Two terms appear frequently in x86 documentation:
+Two terms appear frequently in x86 documentation, and you'll see them constantly
+from here on:
 
 - A **byte** is 8 bits.
 - A **word** is 16 bits, or 2 bytes.
 
-Hexadecimal does not change the stored value. `255`, `0xFF`, and `11111111` are
-different ways to write the same number.
+Hexadecimal does not change the stored value, only how it looks on the page.
+`255`, `0xFF`, and `11111111` are three different spellings of the exact same
+number - pick whichever is easiest to read in context.
 
 ## 3. Memory and addresses
 
-Imagine RAM as a very long row of numbered boxes. Each box holds one byte:
+Imagine RAM as a very long row of numbered boxes, side by side, each one
+holding exactly one byte:
 
 ```text
 Address       0x7C00  0x7C01  0x7C02  0x7C03  ...
 Stored byte      FA      B8      C0      07    ...
 ```
 
-The addresses identify **where** the bytes are. The values in the boxes are the
-actual instructions or data.
+The addresses identify **where** the bytes are. The values in the boxes are
+the actual instructions or data - the address tells you nothing about what's
+inside the box until you know how the program intends to use it.
 
-The same bytes can mean different things depending on how a program uses them:
+The same bytes can mean entirely different things depending on how a program
+uses them:
 
 - A CPU instruction.
 - A number.
 - A letter encoded as text.
 - Part of a memory address.
 
-For example, the letter `A` is represented by the value `0x41` in ASCII, a common
-text encoding. Our message will be stored as a sequence of such byte values followed
-by a zero byte.
+For example, the letter `A` is represented by the value `0x41` in ASCII, a
+common text encoding. Our message will be stored as a sequence of such byte
+values followed by a zero byte - a detail that matters a great deal once we
+get to Step 3 below.
 
 ### The address of our boot sector
 
 The BIOS copies the first disk sector to memory beginning at physical address
-`0x7C00`. If our sector contains 512 bytes, they occupy addresses `0x7C00` through
-`0x7DFF`.
+`0x7C00`. If our sector contains 512 bytes, they occupy addresses `0x7C00`
+through `0x7DFF` - a fixed, well-known spot the BIOS has used for this purpose
+since the earliest PCs.
 
-The CPU needs a reliable way to refer to code and data in that region. Early x86
-addressing uses a **segment** and an **offset**:
+The CPU needs a reliable way to refer to code and data in that region. Early
+x86 addressing uses a **segment** and an **offset**:
 
 ```text
 physical address = segment × 16 + offset
@@ -197,22 +233,37 @@ For our program:
 0x07C0 × 0x10 + 0x0000 = 0x7C00
 ```
 
-You do not need to explore every x86 addressing scheme yet. For now, remember only
-that we will use segment `0x07C0` as the base of the loaded boot sector, and labels
-inside it will be offsets from that base.
+You do not need to explore every x86 addressing scheme yet - that story
+continues in [Lesson 02](../02-entering-protected-mode/index.md). For now,
+remember only that we will use segment `0x07C0` as the base of the loaded boot
+sector, and labels inside it will be offsets measured from that base.
 
 ## 4. Registers: the CPU's immediate workspace
 
-Reading RAM is fast, but the CPU has an even smaller workspace inside itself:
-**registers**. Registers hold the values that the current instructions need
-immediately.
+Reading RAM is fast, but the CPU keeps an even smaller workspace right inside
+itself: **registers**. If RAM is the desk, registers are more like the CPU's
+own two hands - the handful of values it can act on instantly, without
+reaching anywhere else.
 
 Unlike variables in a high-level language, x86 registers have fixed names and
-special conventional uses.
+special conventional uses that you'll simply come to recognize with practice.
+
+### The 8086 register file
+
+The 8086 actually offers more registers than any single program is likely to
+need. Seeing the whole family at once - general-purpose, pointer/index,
+segment, and special-purpose - makes it easier to place the few we actually
+use in their proper context, instead of meeting them as an unexplained list of
+two-letter names.
 
 <p align="center">
-  <img src="./assets/registers-and-memory.svg" alt="The CPU contains registers such as AX, BX, SI, SP, and IP. DS and SI identify message bytes in RAM, while SS and SP identify the top of the stack." width="100%">
+  <img src="./assets/register-map.svg" alt="The 8086 register family grouped into general-purpose data registers AX, BX, CX, DX; pointer and index registers SI, DI, BP, SP; segment registers CS, DS, ES, SS; and special-purpose registers IP and FLAGS. AX, BX, SI, SP, DS, ES, SS, IP, and FLAGS are highlighted as used in this lesson." width="100%">
 </p>
+
+This lesson only touches a handful of these - the highlighted ones above. The
+rest, like `CX`/`DX` for counting and `DI`/`BP` for more advanced addressing,
+will earn their place in later lessons. There's no need to memorize the full
+table now; just know it's there so nothing you meet later feels unfamiliar.
 
 ### Registers used in this lesson
 
@@ -228,7 +279,9 @@ special conventional uses.
 | `SP` | Holds the offset of the top of the stack |
 | `IP` | Points to the next instruction; the CPU updates it automatically |
 
-`AX` is a 16-bit register. Its two halves can also be addressed separately:
+`AX` is a 16-bit register, but its two halves can also be addressed
+separately, like a drawer you can open all the way or open just the front
+half of:
 
 ```text
 AX
@@ -237,20 +290,49 @@ AX
 └───────────────┴───────────────┘
 ```
 
-This is why one BIOS call can use `AH` to select an operation while using `AL` for
-the character involved in that operation.
+This is why one BIOS call can use `AH` to select an operation while using `AL`
+for the character involved in that same operation - two independent pieces of
+information riding in one register.
+
+### Segment:offset pairs
+
+Section 3 introduced the formula `physical address = segment × 16 + offset`,
+but glossed over one detail: which registers actually supply those two
+halves. The answer is that a segment register never works alone - each one is
+conventionally paired with a specific offset register, and together the pair
+names one exact byte in RAM:
+
+| Pair | Points at |
+|---|---|
+| `CS:IP` | The next instruction the CPU is about to fetch |
+| `DS:SI` | The next byte of the message we are printing |
+| `SS:SP` | The current top of the stack |
+
+You never set `CS:IP` directly - the CPU updates it automatically as
+instructions run, and `CALL`, `JMP`, and `RET` are the only ways to redirect
+it. `DS` and `SS`, on the other hand, are ours to initialize explicitly, which
+is exactly what Step 2 in Section 8 does before the program touches any data
+or the stack.
+
+<p align="center">
+  <img src="./assets/registers-and-memory.svg" alt="CS:IP locates the next instruction at EntryPoint, DS:SI locates the next message byte, and SS:SP locates the top of the stack, each pair pointing at a different region of RAM." width="100%">
+</p>
 
 ### Flags
 
-The CPU also maintains individual state bits called **flags**. An instruction such
-as `TEST` updates flags to describe its result. A following instruction such as
-`JZ` can jump when the result was zero.
+The CPU also maintains individual state bits called **flags**, a kind of
+running scoreboard of "what just happened." An instruction such as `TEST`
+updates flags to describe its result. A following instruction such as `JZ` can
+then jump based on that scoreboard - here, specifically, when the result was
+zero.
 
-Our loop uses this pair to detect the zero byte at the end of the message.
+Our loop uses this pair to detect the zero byte at the end of the message,
+which is how the program knows when to stop printing.
 
 ### The stack
 
-The **stack** is an area of RAM used in last-in, first-out order:
+The **stack** is an area of RAM used in last-in, first-out order - picture a
+stack of plates: the last one you set down is the first one you pick back up.
 
 ```text
 push AX  → save AX on top of the stack
@@ -259,14 +341,15 @@ pop BX   → restore the most recently saved value
 pop AX   → restore the value saved before that
 ```
 
-`SS` and `SP` locate the top of the stack. The stack grows toward lower addresses.
-It is used for temporary values and for return addresses when one part of a program
-calls another part.
+`SS` and `SP` locate the top of that stack of plates, and it grows toward
+lower addresses as things get pushed onto it. It's used for temporary values
+and for return addresses whenever one part of a program calls another.
 
 ## 5. From assembly source to machine code
 
-Machine code is difficult for humans to read and write directly. **Assembly
-language** gives names to machine instructions.
+Machine code is difficult for humans to read and write directly - it's just
+raw bytes. **Assembly language** exists to give those bytes names a human can
+actually hold in their head.
 
 For example:
 
@@ -276,15 +359,16 @@ mov ax, 0x07C0
 
 This asks the CPU to copy the value `0x07C0` into register `AX`.
 
-An **assembler** translates the readable instruction into the corresponding machine
-code bytes. We use NASM:
+An **assembler** translates each readable instruction into the machine code
+bytes it stands for. We use NASM:
 
 ```text
 boot.s  ──NASM──>  boot.bin
 source text          machine-code bytes
 ```
 
-Assembly source contains several kinds of line:
+Assembly source contains several kinds of line, and it helps to be able to
+name each one on sight:
 
 | Kind | Example | Meaning |
 |---|---|---|
@@ -309,8 +393,10 @@ Assembly source contains several kinds of line:
 
 !!! important
 
-    In NASM syntax the destination comes first. `mov ax, 5` copies `5` into `AX`;
-    it does not copy `AX` into the number `5`.
+    In NASM syntax the destination comes first. `mov ax, 5` copies `5` into
+    `AX`; it does not copy `AX` into the number `5`. Getting this backwards is
+    one of the most common first mistakes - if a program misbehaves, it's
+    worth double-checking the order on every `mov`.
 
 ## 6. How the BIOS starts our program
 
@@ -326,17 +412,22 @@ After the PC is powered on, the BIOS:
   <img src="./assets/bios-boot-flow.svg" alt="The BIOS reads the first disk sector into physical address 0x7C00, starts its instructions, and the boot-sector program requests a BIOS video service to print characters." width="100%">
 </p>
 
-That first sector is called the **boot sector**. It is not a normal application
-file: there is no operating system to load it, no executable header, and no runtime
-library. The sector contains only the bytes the BIOS and CPU need.
+That first sector is called the **boot sector**, and it lives by different
+rules than the programs you may be used to: there is no operating system to
+load it, no executable header, and no runtime library standing behind it. The
+sector contains nothing but the bytes the BIOS and CPU actually need - not one
+more.
 
-The BIOS also leaves the number of the selected boot drive in register `DL`. We will
-save and use it in Lesson 01. This first program does not read more data from disk,
-so it does not need the number yet.
+The BIOS also leaves the number of the selected boot drive in register `DL`.
+We will save and use it in [Lesson 01](../01-loading-the-kernel/index.md).
+This first program does not read more data from disk, so it does not need
+that number yet - but it's worth remembering it's already sitting there,
+waiting.
 
 ## 7. Anatomy of a boot sector
 
-A BIOS boot sector is exactly 512 bytes:
+A BIOS boot sector is exactly 512 bytes - not one byte more, as we'll see
+later, and the BIOS is strict about this.
 
 <p align="center">
   <img src="./assets/boot-sector-layout.svg" alt="A 512-byte boot sector containing code and data, zero padding through byte 509, and signature bytes 55 AA at offsets 510 and 511." width="100%">
@@ -354,11 +445,12 @@ NASM writes the signature with:
 dw 0xAA55
 ```
 
-`DW` means **define word**, so NASM emits a 2-byte value. x86 stores the lower byte
-first, which turns the word `0xAA55` into the disk bytes `55 AA`.
+`DW` means **define word**, so NASM emits a 2-byte value. x86 stores the lower
+byte first, which turns the word `0xAA55` into the disk bytes `55 AA` - the
+exact pattern the BIOS scans for before it trusts a sector enough to run it.
 
-The instruction below inserts exactly enough zero bytes to place the signature at
-offset 510:
+The instruction below inserts exactly enough zero bytes to place the
+signature at offset 510, however much code comes before it:
 
 ```nasm
 times 510 - ($ - $$) db 0
@@ -371,12 +463,14 @@ The symbols have special meanings to NASM:
 - `$ - $$` is therefore the number of bytes emitted so far.
 - `DB 0` means emit one zero byte.
 
-If the program grows beyond the available 510 bytes, NASM reports an error instead
-of silently creating an invalid sector.
+If the program grows beyond the available 510 bytes, NASM reports an error
+instead of silently creating an invalid sector - a small mercy, since a
+silently truncated boot sector would be a much harder bug to track down.
 
 ## 8. Building the program one idea at a time
 
-We can now build the program without treating any line as magic.
+We now have every piece we need. Let's build the program without treating a
+single line as magic.
 
 ### Step 1: tell NASM what we are producing
 
@@ -387,14 +481,15 @@ We can now build the program without treating any line as magic.
 
 `BITS 16` tells NASM which instruction encoding the CPU expects at startup.
 
-`ORG 0` tells NASM to calculate labels as offsets beginning at zero. We will place
-`0x07C0` in `DS`, so `DS` supplies the base address `0x7C00` and each label supplies
-an offset within the loaded sector.
+`ORG 0` tells NASM to calculate labels as offsets beginning at zero. We will
+place `0x07C0` in `DS`, so `DS` supplies the base address `0x7C00` and each
+label supplies an offset within the loaded sector.
 
 ### Step 2: initialize the data registers and stack
 
-The BIOS gave control to our code, but our code should not assume that data and
-stack registers already contain useful values.
+The BIOS handed control to our code, but it makes no promises about what the
+data and stack registers happen to contain at that moment - so the first job
+is to stop assuming and start setting things explicitly.
 
 ```nasm
 EntryPoint:
@@ -426,12 +521,15 @@ Line by line:
 | `cld` | Make string-reading instructions advance toward higher addresses |
 | `sti` | Allow maskable hardware interrupts again |
 
-x86 does not allow a constant to be copied directly into a segment register, so the
-value travels through `AX`: first `mov ax, 0x07C0`, then `mov ds, ax`.
+x86 does not allow a constant to be copied directly into a segment register,
+so the value has to travel through `AX` first: `mov ax, 0x07C0`, then
+`mov ds, ax`. It's an extra line, but not an optional one.
 
-The `CLI`/`STI` pair is safe initialization boilerplate for now. It creates a short
-quiet period while the stack changes. Interrupt handling will receive its own lesson
-later.
+The `CLI`/`STI` pair is safe initialization boilerplate for now - it creates a
+short quiet period while the stack changes, so nothing can interrupt us
+mid-setup. Interrupt handling in general gets its own lesson later; for now,
+treat this pair as a seatbelt you buckle without needing to know how the car
+works.
 
 ### Step 3: store the message
 
@@ -439,14 +537,15 @@ later.
 bootMsg db "Peace be upon you!", 13, 10, 0
 ```
 
-`DB` means **define bytes**. NASM converts the quoted characters to their text byte
-values, then appends:
+`DB` means **define bytes**. NASM converts the quoted characters to their
+text byte values, then appends:
 
 - `13`: carriage return, moving the cursor to the start of the line.
 - `10`: line feed, moving the cursor down one line.
 - `0`: a terminator that marks the end of the string.
 
-The zero is not displayed. It is simply an end marker our loop can recognize.
+The zero is never displayed. It's purely an end marker, a signpost our loop
+will learn to recognize in Step 5.
 
 ### Step 4: point to the first character
 
@@ -455,24 +554,27 @@ mov si, bootMsg
 call ShowMsg
 ```
 
-`bootMsg` is a label. NASM replaces it with the offset where those message bytes were
-placed.
+`bootMsg` is a label. NASM quietly replaces it with the offset where those
+message bytes actually ended up - you never have to compute that address by
+hand.
 
 Together, `DS:SI` identifies the next message byte:
 
 - `DS` supplies the boot sector's base.
 - `SI` supplies the offset of the current character.
 
-`CALL` begins the `ShowMsg` subroutine. It also saves a return address on the stack,
-allowing `RET` to resume at the instruction after the call.
+`CALL` begins the `ShowMsg` subroutine. It also saves a return address on the
+stack behind the scenes, which is exactly what lets `RET` find its way back to
+resume at the instruction after the call.
 
 ### Step 5: read the message one byte at a time
 
-Assembly has no built-in string object that remembers its own length. Our “string”
-is simply a sequence of character bytes stored next to one another in memory.
-`bootMsg` names the address of the first byte.
+Assembly has no built-in string object that remembers its own length - that
+convenience simply doesn't exist yet at this level. Our "string" is nothing
+more than a sequence of character bytes sitting next to one another in
+memory, and `bootMsg` names the address of the very first one.
 
-Here is a shorter example:
+Here is a shorter example to see the shape clearly:
 
 ```nasm
 message db "Hi", 0
@@ -486,10 +588,11 @@ NASM stores it as:
 | `1` | `0x69` | `i` |
 | `2` | `0x00` | End of the string |
 
-This convention is called a **null-terminated string**. “Null” means the zero byte
-`0x00`. It is not a displayed character; it tells the reading loop where to stop.
-Without that final zero, the loop would continue into whatever bytes happen to
-follow the message in memory.
+This convention is called a **null-terminated string**. "Null" means the zero
+byte `0x00`. It is never displayed as a character; it exists purely to tell
+the reading loop where to stop. Without that final zero, the loop would keep
+marching forward into whatever bytes happen to sit next in memory - almost
+certainly not text, and almost certainly not what you want on screen.
 
 Our complete message works the same way:
 
@@ -497,8 +600,8 @@ Our complete message works the same way:
 bootMsg db "Peace be upon you!", 13, 10, 0
 ```
 
-It contains the text bytes, the carriage-return and line-feed bytes, and finally the
-zero terminator.
+It contains the text bytes, the carriage-return and line-feed bytes, and
+finally the zero terminator that closes it off.
 
 ```nasm
 ShowMsg:
@@ -523,14 +626,15 @@ ShowMsg:
     ret
 ```
 
-The routine first saves the registers it will change. It restores them in reverse
-order before returning.
+The routine first saves the registers it is about to change, then restores
+them in reverse order right before returning - good manners for any
+subroutine that borrows registers it doesn't own.
 
-On each pass, `LODSB` places the next byte in `AL`. `TEST AL, AL` tests the value
-against itself; its result can be zero only when `AL` is zero. The CPU then sets its
-zero flag. If `AL` contains the null terminator, `JZ .done` sees that flag, follows
-the jump, and finishes the routine. Otherwise, the byte is a character and the BIOS
-displays it.
+On each pass, `LODSB` places the next byte in `AL`. `TEST AL, AL` compares
+that value against itself; the result can only be zero when `AL` itself is
+zero, and the CPU records that in its zero flag. If `AL` holds the null
+terminator, `JZ .done` reads that flag, takes the jump, and the routine is
+done. Otherwise, the byte is an ordinary character and the BIOS displays it.
 
 The loop works like this:
 
@@ -544,7 +648,8 @@ The loop works like this:
 | `int 0x10` | Ask the BIOS to display the character in `AL` |
 | `jmp .loop` | Repeat for the next byte |
 
-The BIOS call uses registers as a tiny request form:
+The BIOS call itself works like a tiny paper request form, filled out one
+register at a time:
 
 | Register | Request field |
 |---|---|
@@ -562,14 +667,17 @@ The BIOS call uses registers as a tiny request form:
     jmp .hang
 ```
 
-There is no operating system to return to and no next application to launch. After
-the message is printed, the program prevents ordinary hardware interrupts and
-halts. The backward jump ensures that it can never continue into padding bytes if
-the CPU is awakened.
+There is no operating system to return control to, and no next application
+waiting to launch - once our message is printed, there is genuinely nothing
+left to do. The program disables ordinary hardware interrupts and halts, and
+the backward jump makes sure that even if the CPU is ever woken back up, it
+loops right back into this same quiet stop instead of wandering off into
+whatever padding bytes come next.
 
 ## 9. Complete boot-sector source
 
-The ideas above form the complete `lesson 00/src/boot.s` program:
+The ideas above form the complete `lesson 00/src/boot.s` program - every line
+below should now read as something you've already met, not something new.
 
 ```nasm
 ; AOS Lesson 00 - Writing your first boot sector
@@ -633,7 +741,8 @@ The same source is available in the repository:
 
 ### Trace the whole execution
 
-Before assembling it, follow the program once from start to finish:
+Before assembling it, it's worth walking the program once, start to finish,
+purely in your head:
 
 1. The BIOS copies the sector from disk to memory at `0x7C00`.
 2. The CPU begins at `EntryPoint`.
@@ -646,17 +755,22 @@ Before assembling it, follow the program once from start to finish:
 9. `RET` uses the saved return address to leave `ShowMsg`.
 10. The program enters its halt loop.
 
+If that trace makes sense end to end, you already understand this program
+better than the syntax alone would suggest.
+
 ## 10. Assemble and inspect the sector
 
-NASM's `bin` output format writes the assembled bytes directly, without an
-application header or extra metadata:
+NASM's `bin` output format writes the assembled bytes directly, with no
+application header or extra metadata wrapped around them - what you see is
+genuinely everything that ends up on disk.
 
 ```sh
 mkdir -p "lesson 00/build"
 nasm -f bin "lesson 00/src/boot.s" -o "lesson 00/build/boot.bin"
 ```
 
-The quotation marks are necessary because the directory name contains a space.
+The quotation marks are necessary because the directory name contains a
+space.
 
 Confirm that the output is exactly 512 bytes:
 
@@ -676,7 +790,7 @@ Expected signature:
 55 aa
 ```
 
-The included Makefile performs the same build and checks:
+The included Makefile performs the same build and checks in one step:
 
 ```sh
 make -C "lesson 00"
@@ -692,8 +806,9 @@ signature: 55 aa
 
 ## 11. Create and run a floppy image
 
-A disk image is a file containing the bytes of an entire disk. Create a standard
-1.44 MiB floppy image and put the boot sector in its first 512 bytes:
+A disk image is a file containing the bytes of an entire disk. Create a
+standard 1.44 MiB floppy image and put the boot sector in its first 512
+bytes:
 
 ```sh
 make -C "lesson 00" image
@@ -725,6 +840,11 @@ QEMU should open a display containing:
 Peace be upon you!
 ```
 
+If that line appears, take a moment with it: a machine just started up with
+no operating system at all, ran instructions you wrote yourself, and did
+exactly what you told it to. Everything from here builds on that same
+foundation.
+
 ### Troubleshooting
 
 | Symptom | Check |
@@ -737,7 +857,8 @@ Peace be upon you!
 
 ## 12. What you have learned
 
-You began with the basic parts of a PC and followed a program through every layer:
+You began with the basic parts of a PC and followed a program through every
+layer between them:
 
 ```text
 assembly source
@@ -751,9 +872,13 @@ RAM at 0x7C00
 message on the screen
 ```
 
-The boot sector can now execute instructions, find data in memory, use a stack, call
-a subroutine, loop over a string, and communicate with the screen.
+The boot sector can now execute instructions, find data in memory, use a
+stack, call a subroutine, loop over a string, and communicate with the
+screen. None of that was given to you by an operating system - you built it,
+line by line, on bare hardware.
 
 [Lesson 01 - Loading the Kernel from a Floppy Disk](../01-loading-the-kernel/index.md)
-builds on those foundations. It uses a BIOS disk service to copy a second program
-from storage into memory, then transfers control to that program.
+builds on those foundations. It uses a BIOS disk service to copy a second
+program from storage into memory, then transfers control to that program -
+the first step toward a kernel that no longer fits in 512 bytes.
+</content>

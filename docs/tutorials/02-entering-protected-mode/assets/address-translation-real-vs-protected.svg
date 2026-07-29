@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 520" width="1120" height="520" role="img" aria-labelledby="addrcompare-title addrcompare-desc">
+  <title id="addrcompare-title">Two ways to turn a register into an address</title>
+  <desc id="addrcompare-desc">In real mode, a 16-bit segment is multiplied by 16 and added to a 16-bit offset to form a physical address directly. In protected mode, a selector is used as an index into the Global Descriptor Table to find a descriptor, and the CPU adds the offset to that descriptor's base address, after checking its rules, to form a linear address.</desc>
+  <defs>
+    <marker id="addrcompare-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="520" fill="#ffffff"/>
+  <text x="560" y="46" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#0f172a">Turning a register into an address</text>
+
+  <!-- Real mode column -->
+  <text x="270" y="86" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#1e3a8a">Real mode</text>
+
+  <rect x="80" y="106" width="190" height="80" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="175" y="140" text-anchor="middle" font-family="ui-monospace, monospace" font-size="18" fill="#1e3a8a">Segment</text>
+  <text x="175" y="164" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#475569">16 bits</text>
+
+  <text x="300" y="153" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" fill="#334155">&#215;16</text>
+
+  <rect x="330" y="106" width="190" height="80" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="425" y="132" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#1e3a8a">Segment base</text>
+  <text x="425" y="156" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#475569">segment &#215; 16</text>
+
+  <text x="230" y="230" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" fill="#334155">+</text>
+
+  <rect x="80" y="250" width="190" height="80" rx="14" fill="#fefce8" stroke="#ca8a04" stroke-width="3"/>
+  <text x="175" y="284" text-anchor="middle" font-family="ui-monospace, monospace" font-size="18" fill="#854d0e">Offset</text>
+  <text x="175" y="308" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#475569">16 bits</text>
+
+  <path d="M425,186 L425,215 L175,215 L175,246" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#addrcompare-arrow)"/>
+  <path d="M270,290 L300,290" fill="none" stroke="#64748b" stroke-width="3"/>
+
+  <path d="M175,330 L175,360 L270,360" fill="none" stroke="#64748b" stroke-width="3"/>
+  <path d="M425,186 L425,360 L280,360" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#addrcompare-arrow)"/>
+
+  <rect x="60" y="378" width="420" height="76" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+  <text x="270" y="408" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#065f46">Physical address</text>
+  <text x="270" y="432" text-anchor="middle" font-family="ui-monospace, monospace" font-size="14" fill="#047857">segment &#215; 16 + offset</text>
+
+  <text x="270" y="478" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">no lookup, no rules -</text>
+  <text x="270" y="498" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">the arithmetic is the address</text>
+
+  <!-- divider -->
+  <line x1="560" y1="80" x2="560" y2="500" stroke="#e2e8f0" stroke-width="2"/>
+
+  <!-- Protected mode column -->
+  <text x="850" y="86" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#9a3412">Protected mode</text>
+
+  <rect x="660" y="106" width="190" height="70" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="755" y="138" text-anchor="middle" font-family="ui-monospace, monospace" font-size="18" fill="#9a3412">Selector</text>
+  <text x="755" y="160" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#475569">index into the GDT</text>
+
+  <path d="M755,176 L755,200" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#addrcompare-arrow)"/>
+
+  <rect x="640" y="208" width="420" height="96" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="850" y="234" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#9a3412">Descriptor (found via the GDT)</text>
+  <text x="850" y="258" text-anchor="middle" font-family="ui-monospace, monospace" font-size="14" fill="#c2410c">base &#183; limit &#183; type &#183; privilege &#183; present</text>
+  <text x="850" y="282" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#7c2d12">CPU checks these rules before going further</text>
+
+  <path d="M755,304 L755,330" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#addrcompare-arrow)"/>
+  <text x="800" y="322" font-family="system-ui, sans-serif" font-size="18" fill="#334155">+</text>
+
+  <rect x="660" y="332" width="190" height="70" rx="14" fill="#fefce8" stroke="#ca8a04" stroke-width="3"/>
+  <text x="755" y="362" text-anchor="middle" font-family="ui-monospace, monospace" font-size="18" fill="#854d0e">Offset</text>
+  <text x="755" y="384" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#475569">32 bits</text>
+
+  <path d="M850,304 L850,340 L860,340" fill="none" stroke="#64748b" stroke-width="3"/>
+  <path d="M850,332 L850,412 L850,412" fill="none" stroke="#64748b" stroke-width="3"/>
+  <path d="M850,306 L850,412 L935,412" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#addrcompare-arrow)"/>
+  <path d="M755,402 L755,412 L935,412" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#addrcompare-arrow)"/>
+
+  <rect x="640" y="424" width="420" height="76" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+  <text x="850" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#065f46">Linear address</text>
+  <text x="850" y="478" text-anchor="middle" font-family="ui-monospace, monospace" font-size="14" fill="#047857">descriptor base + offset</text>
+
+  <text x="1030" y="115" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">Our descriptors use</text>
+  <text x="1030" y="133" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">base = 0, so this</text>
+  <text x="1030" y="151" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">reduces to just</text>
+  <text x="1030" y="169" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#334155">the offset itself.</text>
+</svg>
