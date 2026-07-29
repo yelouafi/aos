@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 520" width="1120" height="520" role="img" aria-labelledby="pipeline-title pipeline-desc">
+  <title id="pipeline-title">From four source files to a Multiboot kernel image</title>
+  <desc id="pipeline-desc">NASM assembles multiboot.s and g++ compiles main.cpp, video.cpp, and gdt.cpp into object files. The linker combines them using link.lds into kernel.tmp, objcopy converts it to a plain ELF32 image, and the result, kernel.elf, is handed to GRUB.</desc>
+  <defs>
+    <marker id="pipe-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="520" fill="#ffffff"/>
+  <text x="560" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="27" font-weight="700" fill="#0f172a">From four source files to a Multiboot kernel image</text>
+
+  <rect x="35" y="92" width="310" height="150" rx="18" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="190" y="128" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#1e3a8a">Sources</text>
+  <text x="190" y="160" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#334155">multiboot.s</text>
+  <text x="190" y="182" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#334155">main.cpp · video.cpp</text>
+  <text x="190" y="204" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#334155">gdt.cpp</text>
+  <text x="190" y="228" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">plus system.h, video.h</text>
+
+  <rect x="405" y="92" width="310" height="150" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text x="560" y="128" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#0f172a">Assemble &amp; compile</text>
+  <text x="560" y="163" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#334155">nasm -f elf</text>
+  <text x="560" y="192" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#334155">g++ -c -fno-builtin</text>
+  <text x="560" y="221" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">no standard library involved</text>
+
+  <rect x="775" y="92" width="310" height="150" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="930" y="128" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#9a3412">Object files</text>
+  <text x="930" y="163" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#c2410c">multiboot.o · main.o</text>
+  <text x="930" y="187" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#c2410c">video.o · gdt.o</text>
+  <text x="930" y="219" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">each a separate translation unit</text>
+
+  <line x1="345" y1="167" x2="394" y2="167" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/>
+  <line x1="715" y1="167" x2="764" y2="167" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/>
+
+  <path d="M930,242 L930,286 L190,286 L190,323" fill="none" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/>
+
+  <rect x="35" y="335" width="310" height="150" rx="18" fill="#fefce8" stroke="#ca8a04" stroke-width="3"/>
+  <text x="190" y="371" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#854d0e">Link</text>
+  <text x="190" y="405" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#a16207">ld -T link.lds</text>
+  <text x="190" y="433" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">produces kernel.tmp</text>
+  <text x="190" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">our own layout, no OS loader</text>
+
+  <rect x="405" y="335" width="310" height="150" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+  <text x="560" y="371" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#065f46">Convert format</text>
+  <text x="560" y="405" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#047857">objcopy -O elf32-i386</text>
+  <text x="560" y="433" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">only needed on some toolchains</text>
+  <text x="560" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">(e.g. Cygwin's ld)</text>
+
+  <rect x="775" y="335" width="310" height="150" rx="18" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/>
+  <text x="930" y="371" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#166534">kernel.elf</text>
+  <text x="930" y="405" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#15803d">Multiboot header inside</text>
+  <text x="930" y="428" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#15803d">the first 8 KiB</text>
+  <text x="930" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">ready for GRUB to load</text>
+
+  <line x1="345" y1="410" x2="394" y2="410" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/>
+  <line x1="715" y1="410" x2="764" y2="410" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/>
+</svg>

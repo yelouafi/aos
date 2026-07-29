@@ -909,8 +909,9 @@ the way, you now have a loader that:
 - Establishes flat 32-bit code, data, and stack segments.
 - Writes characters directly to VGA text memory without BIOS services.
 
-The next lesson swaps this hand-written kernel for a higher-level C++ one behind
-a standard bootloader interface - the assembly you just wrote will not go to
-waste, though. It is exactly the ground truth that higher-level bootloader is
-built on top of.
+[Lesson 03 - Starting a C++ Kernel](../03-starting-a-cpp-kernel/index.md)
+swaps this hand-written kernel for a higher-level C++ one loaded by GRUB
+through the Multiboot specification - the assembly you just wrote will not go
+to waste, though. It is exactly the ground truth that higher-level bootloader
+is built on top of.
 </content>
