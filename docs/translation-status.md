@@ -13,7 +13,7 @@ and internal links have been reviewed.
 | 00 | [Writing your first boot sector](tutorials/00-writing-a-boot-sector/index.md) | **Published** |
 | 01 | [Loading the kernel from a floppy disk](tutorials/01-loading-the-kernel/index.md) | **Published** |
 | 02 | [Entering 32-bit protected mode](tutorials/02-entering-protected-mode/index.md) | **Published** |
-| 03 | C++ kernel | Planned |
+| 03 | [Starting a C++ kernel](tutorials/03-starting-a-cpp-kernel/index.md) | **Published** |
 | 04 | Interrupts | Planned |
 | 05 | Kernel development | Planned |
 | 06 | Physical memory management | Planned |

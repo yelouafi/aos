@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 660" width="1120" height="660" role="img" aria-labelledby="layout-title layout-desc">
+  <title id="layout-title">The linked kernel image, section by section</title>
+  <desc id="layout-desc">Starting at linear address 0x00100000, the linker script places the text section marked by symbol code, then rodata, then a 4-KiB aligned data section marked by symbol data, then a bss section marked by symbol bss that ends with a 64-KiB reserved stack, finishing at symbol end.</desc>
+  <defs>
+    <marker id="layout-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="660" fill="#ffffff"/>
+  <text x="560" y="46" text-anchor="middle" font-family="system-ui, sans-serif" font-size="27" font-weight="700" fill="#0f172a">The linked kernel image, section by section</text>
+
+  <text x="330" y="88" text-anchor="end" font-family="ui-monospace, monospace" font-size="17" font-weight="700" fill="#1d4ed8">code</text>
+  <line x1="336" y1="83" x2="380" y2="83" stroke="#2563eb" stroke-width="3" marker-end="url(#layout-arrow)"/>
+  <text x="330" y="70" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">0x00100000</text>
+
+  <rect x="380" y="90" width="360" height="150" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="560" y="130" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#1e3a8a">.text</text>
+  <text x="560" y="158" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#1d4ed8">*(.text*)</text>
+  <text x="560" y="184" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#334155">the code emitted for every function</text>
+  <text x="560" y="205" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#334155">entry, start, kmain, Video methods...</text>
+
+  <rect x="380" y="240" width="360" height="60" fill="#f1f5f9" stroke="#94a3b8" stroke-width="3"/>
+  <text x="560" y="266" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#475569">.rodata</text>
+  <text x="560" y="288" text-anchor="middle" font-family="ui-monospace, monospace" font-size="14" fill="#64748b">*(.rodata*) — string literals, const data</text>
+
+  <text x="330" y="322" text-anchor="end" font-family="ui-monospace, monospace" font-size="17" font-weight="700" fill="#a16207">data</text>
+  <line x1="336" y1="317" x2="380" y2="317" stroke="#ca8a04" stroke-width="3" marker-end="url(#layout-arrow)"/>
+  <text x="330" y="304" text-anchor="end" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">ALIGN(4096)</text>
+
+  <rect x="380" y="324" width="360" height="95" fill="#fefce8" stroke="#ca8a04" stroke-width="3"/>
+  <text x="560" y="358" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#854d0e">.data</text>
+  <text x="560" y="384" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#a16207">*(.*data*)</text>
+  <text x="560" y="405" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#78716c">initialized global and static variables</text>
+
+  <text x="330" y="447" text-anchor="end" font-family="ui-monospace, monospace" font-size="17" font-weight="700" fill="#9a3412">bss</text>
+  <line x1="336" y1="442" x2="380" y2="442" stroke="#ea580c" stroke-width="3" marker-end="url(#layout-arrow)"/>
+
+  <rect x="380" y="424" width="360" height="185" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="560" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#9a3412">.bss</text>
+  <text x="560" y="479" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#c2410c">*(COMMON) *(.bss*)</text>
+  <text x="560" y="500" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#78716c">zero-initialized data, occupies no disk space</text>
+
+  <rect x="410" y="518" width="300" height="76" rx="10" fill="#ffedd5" stroke="#c2410c" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="560" y="546" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" font-weight="700" fill="#9a3412">SECTION .stack</text>
+  <text x="560" y="568" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#7c2d12">resb 0x10000 — reserved after ALIGN(4096)</text>
+  <text x="560" y="587" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#7c2d12">the label "stack" marks its top, ESP starts here</text>
+
+  <text x="330" y="622" text-anchor="end" font-family="ui-monospace, monospace" font-size="17" font-weight="700" fill="#166534">end</text>
+  <line x1="336" y1="617" x2="380" y2="617" stroke="#16a34a" stroke-width="3" marker-end="url(#layout-arrow)"/>
+  <text x="750" y="622" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">everything above is discarded: .note, .comment, .stab...</text>
+</svg>

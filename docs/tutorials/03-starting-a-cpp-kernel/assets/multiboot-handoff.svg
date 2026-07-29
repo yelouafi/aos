@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 600" width="1120" height="600" role="img" aria-labelledby="handoff-title handoff-desc">
+  <title id="handoff-title">Who drives the transition to protected mode</title>
+  <desc id="handoff-desc">In Lesson 02, the hand-written boot sector built its own GDT and set CR0.PE itself. In Lesson 03, GRUB reads the Multiboot header, loads kernel.elf, builds a temporary GDT, enters protected mode on its own, and jumps to the kernel entry point with EAX holding the magic number 0x2BADB002 and EBX holding a pointer to the multiboot_info structure.</desc>
+  <defs>
+    <marker id="handoff-arrow-slate" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="handoff-arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="600" fill="#ffffff"/>
+  <text x="560" y="44" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#0f172a">Who drives the transition to protected mode</text>
+
+  <text x="270" y="80" text-anchor="middle" font-family="system-ui, sans-serif" font-size="19" font-weight="700" fill="#64748b">Lesson 02 — by hand</text>
+  <rect x="60" y="100" width="420" height="64" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+  <text x="270" y="125" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#334155">Our boot sector loads the kernel</text>
+  <text x="270" y="147" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#64748b">INT 13h, sector by sector</text>
+
+  <line x1="270" y1="164" x2="270" y2="192" stroke="#64748b" stroke-width="3" marker-end="url(#handoff-arrow-slate)"/>
+  <rect x="60" y="196" width="420" height="64" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+  <text x="270" y="221" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#334155">Our boot sector builds a GDT</text>
+  <text x="270" y="243" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#64748b">null, code, and data descriptors</text>
+
+  <line x1="270" y1="260" x2="270" y2="288" stroke="#64748b" stroke-width="3" marker-end="url(#handoff-arrow-slate)"/>
+  <rect x="60" y="292" width="420" height="64" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+  <text x="270" y="317" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#334155">Our boot sector flips CR0.PE</text>
+  <text x="270" y="339" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#64748b">LGDT, then a far jump reloads CS</text>
+
+  <line x1="270" y1="356" x2="270" y2="384" stroke="#64748b" stroke-width="3" marker-end="url(#handoff-arrow-slate)"/>
+  <rect x="60" y="388" width="420" height="64" rx="12" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+  <text x="270" y="413" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#0f172a">32-bit kernel starts running</text>
+  <text x="270" y="436" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#475569">no arguments, no conventions</text>
+
+  <line x1="560" y1="100" x2="560" y2="452" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+
+  <text x="850" y="80" text-anchor="middle" font-family="system-ui, sans-serif" font-size="19" font-weight="700" fill="#166534">Lesson 03 — GRUB</text>
+  <rect x="640" y="100" width="420" height="64" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="850" y="125" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#166534">GRUB reads the Multiboot header</text>
+  <text x="850" y="147" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#15803d">magic, flags, checksum in kernel.elf</text>
+
+  <line x1="850" y1="164" x2="850" y2="192" stroke="#16a34a" stroke-width="3" marker-end="url(#handoff-arrow-green)"/>
+  <rect x="640" y="196" width="420" height="64" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="850" y="221" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#166534">GRUB loads the kernel at 0x100000</text>
+  <text x="850" y="243" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#15803d">from any filesystem GRUB understands</text>
+
+  <line x1="850" y1="260" x2="850" y2="288" stroke="#16a34a" stroke-width="3" marker-end="url(#handoff-arrow-green)"/>
+  <rect x="640" y="292" width="420" height="64" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="850" y="317" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#166534">GRUB enters protected mode itself</text>
+  <text x="850" y="339" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#15803d">using its own temporary GDT</text>
+
+  <line x1="850" y1="356" x2="850" y2="384" stroke="#16a34a" stroke-width="3" marker-end="url(#handoff-arrow-green)"/>
+  <rect x="640" y="388" width="420" height="64" rx="12" fill="#dcfce7" stroke="#15803d" stroke-width="3"/>
+  <text x="850" y="410" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#14532d">Kernel entry runs with a contract</text>
+  <text x="850" y="431" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#166534">EAX = 0x2BADB002, EBX = &amp;multiboot_info</text>
+  <text x="850" y="448" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#166534">multiboot.s pushes both for kmain</text>
+
+  <rect x="150" y="486" width="820" height="94" rx="14" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+  <text x="560" y="514" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#854d0e">Our own GDT still matters</text>
+  <text x="560" y="540" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#78716c">GRUB's GDT is temporary and unknown to us. GDTSetup() in gdt.cpp installs our</text>
+  <text x="560" y="562" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#78716c">own flat code and data descriptors before the kernel relies on one for anything else.</text>
+</svg>
