@@ -12,7 +12,7 @@ The series then gradually introduces the structures needed for a larger x86 kern
 |---:|---|---|
 | 00 | [Writing your first boot sector](00-writing-a-boot-sector/index.md) | Published |
 | 01 | [Loading the kernel from a floppy disk](01-loading-the-kernel/index.md) | Published |
-| 02 | Entering protected mode | Planned |
+| 02 | [Entering 32-bit protected mode](02-entering-protected-mode/index.md) | Published |
 | 03 | Starting a C++ kernel | Planned |
 | 04 | Interrupt handling | Planned |
 | 05 | Kernel development | Planned |

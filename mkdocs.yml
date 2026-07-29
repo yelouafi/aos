@@ -51,6 +51,7 @@ nav:
       - Overview: tutorials/index.md
       - "00 - Writing Your First Boot Sector": tutorials/00-writing-a-boot-sector/index.md
       - "01 - Loading the Kernel": tutorials/01-loading-the-kernel/index.md
+      - "02 - Entering Protected Mode": tutorials/02-entering-protected-mode/index.md
   - Translation status: translation-status.md
 
 extra:

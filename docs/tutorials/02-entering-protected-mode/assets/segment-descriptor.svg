@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 430" width="1120" height="430" role="img" aria-labelledby="descriptor-title descriptor-desc">
+  <title id="descriptor-title">Fields of a 64-bit code or data segment descriptor</title>
+  <desc id="descriptor-desc">The descriptor stores a 32-bit base across three fields, a 20-bit limit across two fields, an access byte containing present, privilege, segment, and type bits, and a flags group containing granularity, size, long-mode, and software bits.</desc>
+
+  <rect width="1120" height="430" fill="#ffffff"/>
+  <text x="560" y="50" text-anchor="middle" font-family="system-ui, sans-serif" font-size="27" font-weight="700" fill="#0f172a">One GDT descriptor = 64 bits = 8 bytes</text>
+
+  <text x="75" y="100" font-family="ui-monospace, monospace" font-size="15" fill="#64748b">bit 63</text>
+  <text x="1030" y="100" font-family="ui-monospace, monospace" font-size="15" fill="#64748b">bit 32</text>
+
+  <rect x="70" y="120" width="230" height="88" rx="10 0 0 10" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+  <text x="185" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#1e3a8a">Base 24-31</text>
+  <text x="185" y="184" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#475569">highest base byte</text>
+
+  <rect x="300" y="120" width="220" height="88" fill="#fef3c7" stroke="#ca8a04" stroke-width="3"/>
+  <text x="410" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#854d0e">Flags + limit 16-19</text>
+  <text x="410" y="184" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#a16207">G · D/B · L · AVL</text>
+
+  <rect x="520" y="120" width="260" height="88" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/>
+  <text x="650" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#9a3412">Access byte</text>
+  <text x="650" y="184" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#c2410c">P · DPL · S · Type</text>
+
+  <rect x="780" y="120" width="270" height="88" rx="0 10 10 0" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+  <text x="915" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#1e3a8a">Base 16-23</text>
+  <text x="915" y="184" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#475569">middle base byte</text>
+
+  <text x="75" y="260" font-family="ui-monospace, monospace" font-size="15" fill="#64748b">bit 31</text>
+  <text x="1030" y="260" font-family="ui-monospace, monospace" font-size="15" fill="#64748b">bit 0</text>
+
+  <rect x="70" y="280" width="490" height="88" rx="10 0 0 10" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+  <text x="315" y="316" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#1e3a8a">Base 0-15</text>
+  <text x="315" y="345" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#475569">lowest 16 base bits</text>
+
+  <rect x="560" y="280" width="490" height="88" rx="0 10 10 0" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+  <text x="805" y="316" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#065f46">Limit 0-15</text>
+  <text x="805" y="345" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#475569">lowest 16 limit bits</text>
+
+  <text x="560" y="407" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#64748b">base and limit are split across the descriptor; the CPU reconstructs each complete value</text>
+</svg>

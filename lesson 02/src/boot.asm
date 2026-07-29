@@ -1,93 +1,146 @@
+; AOS Lesson 02 - Entering 32-bit protected mode
+
 [BITS 16]
-[ORG 0x0]
+[ORG 0]
 
-%define DESC_ENTRIES 3
-%define DESC_LENGTH 8
+%define BOOT_SEGMENT    0x07C0
+%define BOOT_ADDRESS    0x7C00
+%define KERNEL_SEGMENT  0x0100
+%define KERNEL_ADDRESS  0x1000
 
+%define CODE_SELECTOR   0x08
+%define DATA_SELECTOR   0x10
 
 start:
-	mov ax, 0x07c0
-	mov ds, ax
-	mov es, ax
-	mov ax, 0x9000
-	mov ss, ax
-	mov sp, 0xf000
-	
-	mov si, msg
-	call prints
-	
-	xor ax, ax
-	int 0x13
-	
-	mov ax, 0x100   ; memory location to move data
-	mov es, ax
-	mov bx, 0
-	mov dl, 0
-	mov dh, 0  ; head
-	mov ch, 0 ; track
-	mov cl, 2   ; sector
-	mov al, 1  ; number of sectors to read
-	mov ah, 2
-	int 0x13
+    ; Establish known data segments and a safe stack.
+    cli
 
-setup_gdt:	
-	cli
-	lgdt[gdtptr]
-	mov eax, cr0
-	or ax, 1
-	mov cr0, eax
-	
-	jmp next
-	
-next:
-	mov esp,0x9F000	
-	mov ax,0x10		; updating segment registers
-	mov ds,ax
-	mov fs,ax
-	mov gs,ax
-	mov es,ax
-	mov ss,ax
-	jmp dword 0x8:0x1000   ; long jump (to update cs) to kernel code
-	
-	jmp $
+    mov ax, BOOT_SEGMENT
+    mov ds, ax
+    mov es, ax
 
-	
-prints:
-	push ax
-	push bx
-   .debut
-	lodsb
-	cmp al, 0
-	jz .fin
-	mov ah, 0x0e
-	mov bx, 0x07
-	int 0x10
-	inc bx
-	jmp .debut
-	
-  .fin:
-	pop bx
-	pop ax
-	ret
+    mov ax, 0x9000
+    mov ss, ax
+    mov sp, 0xFFFF
 
-;-----GDT table descriptors---------
-gdt:
-gdt_null:
-	dw 0,0,0,0
-gdt_cs:
-	db 0xFF, 0xFF,  0,0,   0,     10011011b,     11011111b,     0
-gdt_ds:
-	db 0xFF, 0xFF,  0,0,    0,     10010011b,    11011111b,     0
-gdtend:
+    cld
+    sti
 
-gdtptr:
-	dw	(DESC_ENTRIES  * DESC_LENGTH)-1          ; limite =( number_entries x entry_length)-1
-	dd	0x7C00+gdt		; base, linear address = (segment_adressx16) + offset
+    ; Preserve the drive selected by the BIOS.
+    mov [bootDrive], dl
 
-;-------------------------------------------------------------
-msg db "Loading the kernel",13,10,0
+    mov si, loadingMessage
+    call printString
 
-;-------------------------------------------------------------
+    ; Reset the boot drive.
+    mov dl, [bootDrive]
+    xor ax, ax
+    int 0x13
+    jc diskError
 
-times 510-($-$$) db 144
+    ; Read sector 2 into physical address 0x1000.
+    mov ax, KERNEL_SEGMENT
+    mov es, ax
+    xor bx, bx
+    mov ah, 0x02
+    mov al, 0x01
+    mov ch, 0x00
+    mov cl, 0x02
+    mov dh, 0x00
+    mov dl, [bootDrive]
+    int 0x13
+    jc diskError
+
+    ; Install the descriptor table and enable protected mode.
+    cli
+    lgdt [gdtPointer]
+
+    mov eax, cr0
+    or eax, 0x00000001
+    mov cr0, eax
+
+    ; Reload CS through the 32-bit code descriptor.
+    jmp dword CODE_SELECTOR:(BOOT_ADDRESS + protectedEntry)
+
+diskError:
+    mov si, diskErrorMessage
+    call printString
+
+.hang:
+    cli
+    hlt
+    jmp .hang
+
+printString:
+    push ax
+    push bx
+    push si
+
+.loop:
+    lodsb
+    test al, al
+    jz .done
+
+    mov ah, 0x0E
+    mov bx, 0x0007
+    int 0x10
+    jmp .loop
+
+.done:
+    pop si
+    pop bx
+    pop ax
+    ret
+
+; ---------------------------------------------------------------------------
+; Global Descriptor Table
+; ---------------------------------------------------------------------------
+
+gdtStart:
+gdtNull:
+    dq 0
+
+gdtCode:
+    dw 0xFFFF               ; limit bits 0-15
+    dw 0x0000               ; base bits 0-15
+    db 0x00                 ; base bits 16-23
+    db 10011010b            ; present, ring 0, code, readable
+    db 11001111b            ; 4 KiB granularity, 32-bit, limit bits 16-19
+    db 0x00                 ; base bits 24-31
+
+gdtData:
+    dw 0xFFFF               ; limit bits 0-15
+    dw 0x0000               ; base bits 0-15
+    db 0x00                 ; base bits 16-23
+    db 10010010b            ; present, ring 0, data, writable
+    db 11001111b            ; 4 KiB granularity, 32-bit, limit bits 16-19
+    db 0x00                 ; base bits 24-31
+gdtEnd:
+
+gdtPointer:
+    dw gdtEnd - gdtStart - 1
+    dd BOOT_ADDRESS + gdtStart
+
+loadingMessage   db "Loading the 32-bit kernel...", 13, 10, 0
+diskErrorMessage db "Error: unable to read the kernel.", 13, 10, 0
+bootDrive        db 0
+
+; ---------------------------------------------------------------------------
+; First instructions after CR0.PE becomes 1
+; ---------------------------------------------------------------------------
+
+[BITS 32]
+protectedEntry:
+    mov ax, DATA_SELECTOR
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov esp, 0x0009F000
+
+    ; The kernel was loaded at linear address 0x1000.
+    jmp dword CODE_SELECTOR:KERNEL_ADDRESS
+
+times 510 - ($ - $$) db 0
 dw 0xAA55

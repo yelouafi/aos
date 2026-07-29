@@ -443,3 +443,7 @@ The machine now follows this sequence:
 The kernel does very little, but the important boundary has been crossed: code is no
 longer limited to the 512-byte boot sector. Later lessons can grow the loader, load a
 larger kernel, and switch the x86 processor into protected mode.
+
+[Lesson 02 - Entering 32-bit Protected Mode](../02-entering-protected-mode/index.md)
+builds the required descriptor table, changes the processor's operating mode, and
+writes directly to VGA text memory from a 32-bit kernel.

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 520" width="1120" height="520" role="img" aria-labelledby="transition-title transition-desc">
+  <title id="transition-title">The transition into 32-bit protected mode</title>
+  <desc id="transition-desc">The boot sector loads the kernel, loads the GDT register, sets the PE bit in CR0, performs a far jump through code selector 08, reloads data selector 10 and the stack, then jumps to the kernel at address 1000.</desc>
+  <defs>
+    <marker id="transition-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="520" fill="#ffffff"/>
+  <text x="560" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="27" font-weight="700" fill="#0f172a">From the BIOS environment to a 32-bit kernel</text>
+
+  <rect x="35" y="92" width="310" height="145" rx="18" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="190" y="130" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#1e3a8a">Prepare</text>
+  <text x="190" y="166" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#334155">load sector 2 at 0x1000</text>
+  <text x="190" y="195" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#334155">build null, code, data descriptors</text>
+  <text x="190" y="221" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#1d4ed8">CLI</text>
+
+  <rect x="405" y="92" width="310" height="145" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text x="560" y="130" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Enable</text>
+  <text x="560" y="167" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#334155">LGDT [gdtPointer]</text>
+  <text x="560" y="198" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#334155">CR0.PE = 1</text>
+  <text x="560" y="225" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#64748b">descriptor table is now active</text>
+
+  <rect x="775" y="92" width="310" height="145" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="930" y="130" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#9a3412">Reload CS</text>
+  <text x="930" y="169" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#c2410c">far jump 0x08:protectedEntry</text>
+  <text x="930" y="202" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#475569">select the 32-bit code descriptor</text>
+
+  <line x1="345" y1="165" x2="394" y2="165" stroke="#64748b" stroke-width="4" marker-end="url(#transition-arrow)"/>
+  <line x1="715" y1="165" x2="764" y2="165" stroke="#64748b" stroke-width="4" marker-end="url(#transition-arrow)"/>
+
+  <path d="M930,237 L930,286 L190,286 L190,323" fill="none" stroke="#64748b" stroke-width="4" marker-end="url(#transition-arrow)"/>
+
+  <rect x="35" y="335" width="310" height="145" rx="18" fill="#fefce8" stroke="#ca8a04" stroke-width="3"/>
+  <text x="190" y="373" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#854d0e">Reload data state</text>
+  <text x="190" y="410" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#a16207">DS = ES = FS = GS = SS = 0x10</text>
+  <text x="190" y="441" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#a16207">ESP = 0x9F000</text>
+
+  <rect x="405" y="335" width="310" height="145" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+  <text x="560" y="373" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#065f46">Enter kernel</text>
+  <text x="560" y="412" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#047857">far jump 0x08:0x1000</text>
+  <text x="560" y="444" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#475569">execute 32-bit kernel code</text>
+
+  <rect x="775" y="335" width="310" height="145" rx="18" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/>
+  <text x="930" y="373" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#166534">Display result</text>
+  <text x="930" y="412" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#15803d">write at 0xB8000</text>
+  <text x="930" y="444" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#475569">no BIOS printing routine</text>
+
+  <line x1="345" y1="408" x2="394" y2="408" stroke="#64748b" stroke-width="4" marker-end="url(#transition-arrow)"/>
+  <line x1="715" y1="408" x2="764" y2="408" stroke="#64748b" stroke-width="4" marker-end="url(#transition-arrow)"/>
+</svg>

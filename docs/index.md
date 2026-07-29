@@ -29,6 +29,11 @@ becomes machine code. Then build 512 bootable bytes that print your first messag
 Build on that boot sector by reading a tiny kernel from disk and transferring
 execution to it with a far jump.
 
+### [Lesson 02 - Entering 32-bit Protected Mode](tutorials/02-entering-protected-mode/index.md)
+
+Build a Global Descriptor Table, switch the processor into protected mode, and
+print directly through VGA text memory from a 32-bit kernel.
+
 ## About the archive
 
 The repository also preserves the original PDFs, HTML exports, assembly files, and

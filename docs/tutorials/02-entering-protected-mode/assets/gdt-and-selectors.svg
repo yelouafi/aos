@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 500" width="1120" height="500" role="img" aria-labelledby="gdt-title gdt-desc">
+  <title id="gdt-title">How segment selectors choose GDT entries</title>
+  <desc id="gdt-desc">The selector contains a table index in its upper bits plus TI and RPL flags in its lower bits. Selector 08 has index 1 and chooses the flat code descriptor. Selector 10 has index 2 and chooses the flat data descriptor.</desc>
+  <defs>
+    <marker id="gdt-arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+    <marker id="gdt-arrow-orange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ea580c"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="500" fill="#ffffff"/>
+  <text x="560" y="48" text-anchor="middle" font-family="system-ui, sans-serif" font-size="27" font-weight="700" fill="#0f172a">A selector is an index, not a segment address</text>
+
+  <rect x="45" y="92" width="405" height="155" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text x="247" y="127" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#0f172a">16-bit selector</text>
+  <rect x="78" y="154" width="252" height="58" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <rect x="330" y="154" width="44" height="58" fill="#fef3c7" stroke="#ca8a04" stroke-width="2"/>
+  <rect x="374" y="154" width="44" height="58" rx="0 8 8 0" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+  <text x="204" y="190" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" font-weight="700" fill="#1e3a8a">index (13 bits)</text>
+  <text x="352" y="190" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" font-weight="700" fill="#854d0e">TI</text>
+  <text x="396" y="190" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" font-weight="700" fill="#9a3412">RPL</text>
+  <text x="247" y="232" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#64748b">our selectors use TI = 0 and RPL = 0</text>
+
+  <rect x="565" y="82" width="510" height="350" rx="20" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text x="820" y="121" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Global Descriptor Table</text>
+
+  <rect x="610" y="151" width="420" height="70" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+  <text x="642" y="180" font-family="ui-monospace, monospace" font-size="16" fill="#475569">index 0</text>
+  <text x="820" y="194" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#475569">null descriptor</text>
+
+  <rect x="610" y="241" width="420" height="70" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="642" y="270" font-family="ui-monospace, monospace" font-size="16" fill="#1d4ed8">index 1</text>
+  <text x="820" y="274" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#1e3a8a">code · base 0 · limit 4 GiB</text>
+  <text x="820" y="299" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#1d4ed8">access 9A · flags CF</text>
+
+  <rect x="610" y="331" width="420" height="70" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="642" y="360" font-family="ui-monospace, monospace" font-size="16" fill="#c2410c">index 2</text>
+  <text x="820" y="364" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#9a3412">data · base 0 · limit 4 GiB</text>
+  <text x="820" y="389" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#c2410c">access 92 · flags CF</text>
+
+  <rect x="45" y="300" width="190" height="75" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="140" y="329" text-anchor="middle" font-family="ui-monospace, monospace" font-size="20" font-weight="700" fill="#1e3a8a">0x08</text>
+  <text x="140" y="357" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#475569">index 1 × 8</text>
+
+  <rect x="270" y="390" width="190" height="75" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="365" y="419" text-anchor="middle" font-family="ui-monospace, monospace" font-size="20" font-weight="700" fill="#9a3412">0x10</text>
+  <text x="365" y="447" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#475569">index 2 × 8</text>
+
+  <path d="M235,337 C405,337 445,276 598,276" fill="none" stroke="#2563eb" stroke-width="4" marker-end="url(#gdt-arrow-blue)"/>
+  <path d="M460,427 C525,427 535,366 598,366" fill="none" stroke="#ea580c" stroke-width="4" marker-end="url(#gdt-arrow-orange)"/>
+
+  <text x="185" y="278" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#64748b">selector = index × 8 when TI = RPL = 0</text>
+</svg>

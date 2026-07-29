@@ -1,3 +1,6 @@
+# macOS metadata
+.DS_Store
+
 # Prerequisites
 *.d
 
@@ -37,3 +40,4 @@ site/
 
 # Lesson build output
 lesson 00/build/
+lesson 02/build/
