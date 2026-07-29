@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 360" width="1120" height="360" role="img" aria-labelledby="sector-title sector-desc">
+  <title id="sector-title">Layout of a 512-byte BIOS boot sector</title>
+  <desc id="sector-desc">Instructions and data occupy the beginning of the sector, zero padding continues through byte 509, and signature bytes 55 and AA occupy bytes 510 and 511.</desc>
+
+  <rect width="1120" height="360" fill="#ffffff"/>
+  <text x="560" y="54" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#0f172a">One boot sector = 512 bytes</text>
+
+  <rect x="55" y="110" width="410" height="112" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+  <rect x="465" y="110" width="505" height="112" fill="#f1f5f9" stroke="#64748b" stroke-width="3"/>
+  <rect x="970" y="110" width="48" height="112" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+  <rect x="1018" y="110" width="48" height="112" rx="0 14 14 0" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/>
+
+  <text x="260" y="157" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#1e3a8a">Code and data</text>
+  <text x="260" y="190" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#1d4ed8">instructions + strings</text>
+
+  <text x="718" y="157" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#334155">Zero padding</text>
+  <text x="718" y="190" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#475569">times 510 - ($ - $$) db 0</text>
+
+  <text x="994" y="178" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" font-weight="700" fill="#92400e">55</text>
+  <text x="1042" y="178" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" font-weight="700" fill="#9a3412">AA</text>
+
+  <line x1="55" y1="236" x2="55" y2="260" stroke="#64748b" stroke-width="2"/>
+  <line x1="970" y1="236" x2="970" y2="260" stroke="#64748b" stroke-width="2"/>
+  <line x1="1018" y1="236" x2="1018" y2="260" stroke="#64748b" stroke-width="2"/>
+  <line x1="1066" y1="236" x2="1066" y2="260" stroke="#64748b" stroke-width="2"/>
+
+  <text x="55" y="288" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#475569">0</text>
+  <text x="970" y="288" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#475569">510</text>
+  <text x="1018" y="288" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#475569">511</text>
+  <text x="1066" y="288" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#475569">512</text>
+
+  <text x="1018" y="332" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#9a3412">boot signature</text>
+</svg>

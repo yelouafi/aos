@@ -10,6 +10,7 @@ and internal links have been reviewed.
 
 | Lesson | Topic | Status |
 |---:|---|---|
+| 00 | [Writing your first boot sector](tutorials/00-writing-a-boot-sector/index.md) | **Published** |
 | 01 | [Loading the kernel from a floppy disk](tutorials/01-loading-the-kernel/index.md) | **Published** |
 | 02 | Protected mode | Planned |
 | 03 | C++ kernel | Planned |

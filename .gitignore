@@ -34,3 +34,6 @@
 # Documentation build output
 site/
 .venv/
+
+# Lesson build output
+lesson 00/build/

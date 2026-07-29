@@ -30,9 +30,10 @@ By the end of the lesson, you will have two 512-byte programs:
 | 1 | Boot sector | `0x07C0:0x0000` (physical `0x7C00`) | Ask the BIOS to read the kernel |
 | 2 | Kernel | `0x0100:0x0000` (physical `0x1000`) | Print a message to the screen |
 
-The lesson continues an earlier introduction to writing a boot sector. That lesson
-stopped after printing a message from the boot sector. Here we take the next natural
-step: load another program from disk and transfer control to it.
+This lesson continues
+[Lesson 00 - Writing Your First Boot Sector](../00-writing-a-boot-sector/index.md),
+which stopped after printing a message from the boot sector. Here we take the next
+natural step: load another program from disk and transfer control to it.
 
 You should already be comfortable with basic 16-bit x86 assembly and with how a BIOS
 loads a boot sector.
@@ -51,8 +52,11 @@ video service `INT 10h`, function `AH = 0Eh`.
 
 ```nasm
 [BITS 16]
+[ORG 0]
 
 EntryPoint:
+    cli
+
     mov ax, 0x07C0
     mov ds, ax
     mov es, ax
@@ -61,31 +65,39 @@ EntryPoint:
     mov ss, ax
     mov sp, 0xFFFF
 
-    mov si, Salam
+    cld
+    sti
+
+    mov si, bootMsg
     call ShowMsg
 
-k_loop:
-    jmp k_loop
+.hang:
+    cli
+    hlt
+    jmp .hang
 
 ShowMsg:
     push ax
     push bx
+    push si
 
-.loop_start:
+.loop:
     lodsb
-    cmp al, 0
-    je .loop_end
+    test al, al
+    jz .done
+
     mov ah, 0x0E
     mov bx, 0x0007
     int 0x10
-    jmp .loop_start
+    jmp .loop
 
-.loop_end:
+.done:
+    pop si
     pop bx
     pop ax
     ret
 
-Salam db "Salam Alikom!", 13, 10, 0
+bootMsg db "Peace be upon you!", 13, 10, 0
 
 times 510 - ($ - $$) db 0
 dw 0xAA55

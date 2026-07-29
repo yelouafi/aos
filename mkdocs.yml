@@ -49,6 +49,7 @@ nav:
   - Home: index.md
   - Tutorials:
       - Overview: tutorials/index.md
+      - "00 - Writing Your First Boot Sector": tutorials/00-writing-a-boot-sector/index.md
       - "01 - Loading the Kernel": tutorials/01-loading-the-kernel/index.md
   - Translation status: translation-status.md
 

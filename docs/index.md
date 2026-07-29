@@ -19,10 +19,15 @@ formatting, diagrams, and explanations for the web.
 
 ## Start learning
 
+### [Lesson 00 - Writing Your First Boot Sector](tutorials/00-writing-a-boot-sector/index.md)
+
+Write 512 bytes of 16-bit x86 machine code that the BIOS can load directly, then use
+a BIOS video service to print your first message.
+
 ### [Lesson 01 - Loading the Kernel from a Floppy Disk](tutorials/01-loading-the-kernel/index.md)
 
-Use BIOS disk services from a 16-bit boot sector, load a tiny kernel into memory, and
-transfer execution to it with a far jump.
+Build on that boot sector by reading a tiny kernel from disk and transferring
+execution to it with a far jump.
 
 ## About the archive
 
