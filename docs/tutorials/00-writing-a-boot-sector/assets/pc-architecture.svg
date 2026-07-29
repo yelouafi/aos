@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 500" width="1120" height="500" role="img" aria-labelledby="pc-title pc-desc">
+  <title id="pc-title">The parts of a PC involved in booting</title>
+  <desc id="pc-desc">BIOS firmware coordinates startup. It copies the first sector from persistent storage into RAM. The CPU fetches and executes those instructions from RAM, and the program sends characters to the display through a BIOS service.</desc>
+  <defs>
+    <marker id="pc-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="pc-arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="500" fill="#ffffff"/>
+
+  <rect x="50" y="35" width="1020" height="92" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text x="560" y="73" text-anchor="middle" font-family="system-ui, sans-serif" font-size="25" font-weight="700" fill="#0f172a">BIOS firmware coordinates startup</text>
+  <text x="560" y="104" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#475569">initialize hardware · choose a boot device · copy its first sector · start the copied program</text>
+
+  <rect x="30" y="210" width="230" height="190" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="145" y="251" text-anchor="middle" font-family="system-ui, sans-serif" font-size="23" font-weight="700" fill="#9a3412">Storage</text>
+  <text x="145" y="287" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#475569">floppy-disk image</text>
+  <rect x="75" y="312" width="140" height="40" rx="8" fill="#ffedd5"/>
+  <text x="145" y="338" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#9a3412">sector 1</text>
+  <text x="145" y="378" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#64748b">bytes persist after power-off</text>
+
+  <rect x="320" y="185" width="240" height="240" rx="18" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="440" y="229" text-anchor="middle" font-family="system-ui, sans-serif" font-size="23" font-weight="700" fill="#1e3a8a">RAM</text>
+  <text x="440" y="262" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#475569">numbered byte locations</text>
+  <rect x="355" y="287" width="170" height="76" rx="10" fill="#dbeafe"/>
+  <text x="440" y="316" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#1d4ed8">address 0x7C00</text>
+  <text x="440" y="344" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#334155">instructions + message</text>
+  <text x="440" y="395" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#64748b">temporary working area</text>
+
+  <rect x="620" y="185" width="240" height="240" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+  <text x="740" y="229" text-anchor="middle" font-family="system-ui, sans-serif" font-size="23" font-weight="700" fill="#0f172a">CPU</text>
+  <rect x="655" y="264" width="170" height="48" rx="9" fill="#e2e8f0"/>
+  <text x="740" y="294" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#334155">instruction engine</text>
+  <rect x="655" y="326" width="170" height="48" rx="9" fill="#e2e8f0"/>
+  <text x="740" y="356" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#334155">registers</text>
+  <text x="740" y="402" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#64748b">fetch · decode · execute</text>
+
+  <rect x="920" y="210" width="170" height="190" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+  <text x="1005" y="251" text-anchor="middle" font-family="system-ui, sans-serif" font-size="23" font-weight="700" fill="#065f46">Display</text>
+  <rect x="945" y="282" width="120" height="70" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+  <text x="1005" y="312" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#047857">Peace be</text>
+  <text x="1005" y="335" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#047857">upon you!</text>
+  <text x="1005" y="378" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#64748b">output peripheral</text>
+
+  <line x1="260" y1="305" x2="309" y2="305" stroke="#2563eb" stroke-width="4" marker-end="url(#pc-arrow-blue)"/>
+  <text x="290" y="286" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">copy</text>
+
+  <line x1="560" y1="285" x2="609" y2="285" stroke="#64748b" stroke-width="4" marker-end="url(#pc-arrow)"/>
+  <line x1="620" y1="330" x2="571" y2="330" stroke="#64748b" stroke-width="4" marker-end="url(#pc-arrow)"/>
+  <text x="590" y="265" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#475569">fetch</text>
+  <text x="590" y="355" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#475569">read/write</text>
+
+  <line x1="860" y1="305" x2="909" y2="305" stroke="#059669" stroke-width="4" marker-end="url(#pc-arrow)"/>
+  <text x="885" y="283" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#047857">print</text>
+
+  <path d="M145,127 L145,198" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#pc-arrow)"/>
+  <path d="M440,127 L440,173" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#pc-arrow)"/>
+
+  <text x="560" y="472" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#64748b">storage keeps the bytes · RAM holds them while running · the CPU executes them</text>
+</svg>

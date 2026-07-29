@@ -35,8 +35,9 @@ This lesson continues
 which stopped after printing a message from the boot sector. Here we take the next
 natural step: load another program from disk and transfer control to it.
 
-You should already be comfortable with basic 16-bit x86 assembly and with how a BIOS
-loads a boot sector.
+Lesson 00 introduced the PC components, memory addresses, registers, stack, assembly
+syntax, and BIOS boot process used here. Keep it nearby if any of those ideas still
+feel new.
 
 <p align="center">
   <img src="./assets/boot-flow.svg" alt="Boot flow: BIOS loads the boot sector, the boot sector reads the kernel, then execution jumps to the kernel." width="100%">

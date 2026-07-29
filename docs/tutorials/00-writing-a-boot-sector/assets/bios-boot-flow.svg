@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 330" width="1120" height="330" role="img" aria-labelledby="boot-flow-title boot-flow-desc">
   <title id="boot-flow-title">From BIOS firmware to boot-sector output</title>
-  <desc id="boot-flow-desc">The BIOS selects a boot device and reads sector one. The sector is loaded at physical address 7C00, where its 16-bit code calls BIOS interrupt 10h to print a message.</desc>
+  <desc id="boot-flow-desc">The BIOS selects a boot device and reads sector one. The sector is loaded at physical address 7C00, where its instructions request BIOS interrupt 10h to print a message.</desc>
   <defs>
     <marker id="flow-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
@@ -20,7 +20,7 @@
   <rect x="410" y="40" width="300" height="230" rx="20" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
   <text x="560" y="90" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#0f172a">Boot sector</text>
   <text x="560" y="128" text-anchor="middle" font-family="ui-monospace, monospace" font-size="17" fill="#475569">physical 0x7C00</text>
-  <text x="560" y="164" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#334155">16-bit real-mode code</text>
+  <text x="560" y="164" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" fill="#334155">instructions + data</text>
   <rect x="468" y="191" width="184" height="45" rx="10" fill="#e2e8f0"/>
   <text x="560" y="220" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#0f172a">signature 55 AA</text>
 

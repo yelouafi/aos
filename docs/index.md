@@ -21,8 +21,8 @@ formatting, diagrams, and explanations for the web.
 
 ### [Lesson 00 - Writing Your First Boot Sector](tutorials/00-writing-a-boot-sector/index.md)
 
-Write 512 bytes of 16-bit x86 machine code that the BIOS can load directly, then use
-a BIOS video service to print your first message.
+Start with the parts of a PC, how the CPU uses memory and registers, and how assembly
+becomes machine code. Then build 512 bootable bytes that print your first message.
 
 ### [Lesson 01 - Loading the Kernel from a Floppy Disk](tutorials/01-loading-the-kernel/index.md)
 

@@ -5,8 +5,8 @@ description: The translated AOS operating-system development curriculum.
 
 # Tutorials
 
-The series begins in 16-bit BIOS real mode and gradually introduces the structures
-needed for a larger x86 kernel.
+Lesson 00 begins with PC architecture, memory, registers, and assembly fundamentals.
+The series then gradually introduces the structures needed for a larger x86 kernel.
 
 | Lesson | Topic | Availability |
 |---:|---|---|
