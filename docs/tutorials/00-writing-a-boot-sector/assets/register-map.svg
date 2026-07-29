@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 560" width="1120" height="560" role="img" aria-labelledby="regmap-title regmap-desc">
+  <title id="regmap-title">The 8086 register family</title>
+  <desc id="regmap-desc">General-purpose registers AX, BX, CX, and DX, each splittable into high and low halves. Pointer and index registers SI, DI, BP, and SP. Segment registers CS, DS, ES, and SS. Special-purpose registers IP and FLAGS. AX, BX, SI, SP, DS, ES, SS, IP, and FLAGS are highlighted as used in this lesson; CX, DX, DI, BP, and CS are introduced later.</desc>
+
+  <rect width="1120" height="560" fill="#ffffff"/>
+  <text x="560" y="42" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#0f172a">The 8086 register family</text>
+
+  <!-- legend -->
+  <rect x="330" y="56" width="20" height="14" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="358" y="67" font-family="system-ui, sans-serif" font-size="14" fill="#334155">used in this lesson</text>
+  <rect x="560" y="56" width="20" height="14" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3,3"/>
+  <text x="588" y="67" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8">introduced in a later lesson</text>
+
+  <!-- Row 1: general purpose -->
+  <text x="110" y="92" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#1e3a8a">General-purpose (data) registers</text>
+
+  <rect x="110" y="104" width="210" height="70" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="215" y="130" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#1e3a8a">AX</text>
+  <text x="215" y="150" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#1d4ed8">AH + AL</text>
+  <text x="215" y="165" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#3b5998">work value · BIOS function</text>
+
+  <rect x="340" y="104" width="210" height="70" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="445" y="130" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#1e3a8a">BX</text>
+  <text x="445" y="150" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#1d4ed8">BH + BL</text>
+  <text x="445" y="165" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#3b5998">extra working value</text>
+
+  <rect x="570" y="104" width="210" height="70" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,4"/>
+  <text x="675" y="130" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#94a3b8">CX</text>
+  <text x="675" y="150" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#adb8c4">CH + CL</text>
+  <text x="675" y="165" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#adb8c4">loop counters (later)</text>
+
+  <rect x="800" y="104" width="210" height="70" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,4"/>
+  <text x="905" y="130" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#94a3b8">DX</text>
+  <text x="905" y="150" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#adb8c4">DH + DL</text>
+  <text x="905" y="165" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#adb8c4">I/O port number (later)</text>
+
+  <!-- Row 2: pointer and index -->
+  <text x="110" y="196" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#854d0e">Pointer &amp; index registers</text>
+
+  <rect x="110" y="208" width="210" height="70" rx="12" fill="#fef3c7" stroke="#ca8a04" stroke-width="2.5"/>
+  <text x="215" y="238" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#854d0e">SI</text>
+  <text x="215" y="260" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#a16207">source index (message offset)</text>
+
+  <rect x="340" y="208" width="210" height="70" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,4"/>
+  <text x="445" y="238" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#94a3b8">DI</text>
+  <text x="445" y="260" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#adb8c4">destination index (later)</text>
+
+  <rect x="570" y="208" width="210" height="70" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,4"/>
+  <text x="675" y="238" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#94a3b8">BP</text>
+  <text x="675" y="260" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#adb8c4">stack frame base (later)</text>
+
+  <rect x="800" y="208" width="210" height="70" rx="12" fill="#fef3c7" stroke="#ca8a04" stroke-width="2.5"/>
+  <text x="905" y="238" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#854d0e">SP</text>
+  <text x="905" y="260" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#a16207">top of the stack</text>
+
+  <!-- Row 3: segment registers -->
+  <text x="110" y="300" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#065f46">Segment registers</text>
+
+  <rect x="110" y="312" width="210" height="70" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,4"/>
+  <text x="215" y="342" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#94a3b8">CS</text>
+  <text x="215" y="364" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#adb8c4">code segment (implicit here)</text>
+
+  <rect x="340" y="312" width="210" height="70" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2.5"/>
+  <text x="445" y="342" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#065f46">DS</text>
+  <text x="445" y="364" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#047857">data segment</text>
+
+  <rect x="570" y="312" width="210" height="70" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2.5"/>
+  <text x="675" y="342" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#065f46">ES</text>
+  <text x="675" y="364" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#047857">extra segment (set for later)</text>
+
+  <rect x="800" y="312" width="210" height="70" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2.5"/>
+  <text x="905" y="342" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#065f46">SS</text>
+  <text x="905" y="364" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#047857">stack segment</text>
+
+  <!-- Row 4: special purpose -->
+  <text x="110" y="404" font-family="system-ui, sans-serif" font-size="17" font-weight="700" fill="#5b21b6">Special-purpose registers</text>
+
+  <rect x="340" y="416" width="210" height="70" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+  <text x="445" y="446" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#5b21b6">IP</text>
+  <text x="445" y="468" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#6d28d9">next instruction offset</text>
+
+  <rect x="570" y="416" width="210" height="70" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+  <text x="675" y="446" text-anchor="middle" font-family="ui-monospace, monospace" font-size="19" font-weight="700" fill="#5b21b6">FLAGS</text>
+  <text x="675" y="468" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#6d28d9">status bits (ZF, CF, ...)</text>
+
+  <text x="560" y="524" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#64748b">this lesson only ever touches the highlighted registers - the rest will show up in later lessons</text>
+</svg>
