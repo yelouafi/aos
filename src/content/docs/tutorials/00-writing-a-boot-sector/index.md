@@ -1,10 +1,6 @@
 ---
 title: Writing Your First Boot Sector
 description: Learn the foundations of PC architecture and x86 assembly, then build a 512-byte boot sector.
-sidebar:
-  badge:
-    text: New
-    variant: success
 ---
 
 <div class="lesson-meta">

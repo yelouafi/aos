@@ -1,10 +1,6 @@
 ---
 title: Entering 32-bit Protected Mode
 description: Build a Global Descriptor Table, switch an x86 CPU into 32-bit protected mode, and write directly to VGA text memory.
-sidebar:
-  badge:
-    text: New
-    variant: success
 ---
 
 <div class="lesson-meta">

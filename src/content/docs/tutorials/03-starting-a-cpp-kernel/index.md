@@ -1,10 +1,6 @@
 ---
 title: Starting a C++ Kernel
 description: Hand the boot process to GRUB through the Multiboot specification, and bring up a small C++ kernel with its own GDT and screen-printing class.
-sidebar:
-  badge:
-    text: New
-    variant: success
 ---
 
 <div class="lesson-meta">

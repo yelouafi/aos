@@ -1,10 +1,6 @@
 ---
 title: Loading the Kernel from a Floppy Disk
 description: Build a 16-bit x86 boot sector that loads and starts a tiny kernel from a floppy disk.
-sidebar:
-  badge:
-    text: New
-    variant: success
 ---
 
 <div class="lesson-meta">
