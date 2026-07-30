@@ -31,7 +31,7 @@ isr%1:
 ;; IDTsetHandler(int vector, DWORD handler, int dpl)
 ;; (defined in isr.cpp)
 %macro setHandler 1
-	push dword 3		;; dpl=3
+	push dword 0		;; kernel-only interrupt gate
 	push dword isr%1	;; handler = isr%1 {isr0, isr1...}
 	push dword %1		;; interrupt vector
 	c_call IDTsetHandler

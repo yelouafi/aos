@@ -46,8 +46,10 @@ Exception::Exception(Video* v)
 
 
 void Exception::handle(regs* r, int vector, int errorCode) {
+	(void)errorCode;
 	out->printf("\nException: %s\n", messages[vector]);
 	out->printf("eax: %x, ebx: %x, ecx: %x, edx: %x\n",
 		r->eax, r->ebx, r->ecx, r->edx);
-	while(1);
+	while (1)
+		asm volatile("cli; hlt");
 }

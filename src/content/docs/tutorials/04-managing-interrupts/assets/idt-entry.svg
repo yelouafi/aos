@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 460" width="1120" height="460" role="img" aria-labelledby="idt-entry-title idt-entry-desc">
+  <title id="idt-entry-title">The 8-byte layout of one IDT gate descriptor</title>
+  <desc id="idt-entry-desc">An IDTEntry is eight bytes: a 16-bit low offset, a 16-bit segment selector naming the kernel code segment, a reserved-and-flags byte, a type/DPL/present byte where type 14 marks a 32-bit interrupt gate, and a 16-bit high offset. IDTsetHandler fills these five fields from a vector number, a handler address, and a privilege level.</desc>
+
+  <rect width="1120" height="460" fill="#ffffff"/>
+  <text x="560" y="42" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#0f172a">One IDT entry, eight bytes wide</text>
+  <text x="560" y="68" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#64748b">idt[vector], filled in by IDTsetHandler(vector, handler, dpl)</text>
+
+  <!-- byte boxes -->
+  <g font-family="ui-monospace, monospace" font-size="13">
+    <rect x="40" y="110" width="160" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="120" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">offset_1</text>
+    <text x="120" y="158" text-anchor="middle" fill="#1e40af">handler bits 0..15</text>
+    <text x="120" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">2 bytes</text>
+
+    <rect x="220" y="110" width="200" height="70" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+    <text x="320" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#166534">segment</text>
+    <text x="320" y="158" text-anchor="middle" fill="#15803d">selector 0x08 — GDT code</text>
+    <text x="320" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">2 bytes</text>
+
+    <rect x="440" y="110" width="150" height="70" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+    <text x="515" y="132" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">reserved:5</text>
+    <text x="515" y="150" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">flags:3</text>
+    <text x="515" y="168" text-anchor="middle" fill="#64748b">always 0 here</text>
+    <text x="515" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">1 byte</text>
+
+    <rect x="610" y="110" width="230" height="70" rx="10" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+    <text x="725" y="130" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#854d0e">type:5  dpl:2  present:1</text>
+    <text x="725" y="150" text-anchor="middle" fill="#854d0e">type = 14 (32-bit interrupt gate)</text>
+    <text x="725" y="168" text-anchor="middle" fill="#a16207">dpl = 3, present = 1</text>
+    <text x="725" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">1 byte</text>
+
+    <rect x="860" y="110" width="200" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+    <text x="960" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#1d4ed8">offset_2</text>
+    <text x="960" y="158" text-anchor="middle" fill="#1e40af">handler bits 16..31</text>
+    <text x="960" y="200" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">2 bytes</text>
+  </g>
+
+  <text x="560" y="240" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#64748b">offset_1 and offset_2 together rebuild the full 32-bit handler address the CPU jumps to</text>
+  <path d="M120,182 L120,220 L960,220 L960,182" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5 5"/>
+
+  <!-- present / dpl callouts -->
+  <rect x="60" y="280" width="480" height="150" rx="14" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+  <text x="300" y="308" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#0f172a">present</text>
+  <text x="300" y="332" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#334155">0 leaves the slot cleared — an interrupt landing</text>
+  <text x="300" y="352" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#334155">there raises a General Protection Fault instead.</text>
+  <text x="300" y="384" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#0f172a">dpl</text>
+  <text x="300" y="408" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#334155">the lowest privilege level allowed to reach this</text>
+  <text x="300" y="425" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#334155">gate through a software int; hardware ignores it.</text>
+
+  <rect x="580" y="280" width="480" height="150" rx="14" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+  <text x="820" y="308" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#854d0e">interrupt gate vs. trap gate</text>
+  <text x="820" y="334" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#78350f">Only the type field differs (14 vs. 15). An interrupt</text>
+  <text x="820" y="354" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#78350f">gate clears IF on entry, so IRQs stay masked until</text>
+  <text x="820" y="374" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#78350f">iret restores the saved eflags — a trap gate leaves</text>
+  <text x="820" y="394" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#78350f">IF untouched. This lesson uses interrupt gates only.</text>
+</svg>

@@ -41,15 +41,19 @@ start:
   
   
   push ebx
-  push MULTIBOOT_HEADER_MAGIC
+  push eax
   %ifdef LEADING_USCORE
 	call _kmain
   %else
 	call kmain
   %endif
-  jmp $
-  
 
-SECTION .stack
+.hang:
+  cli
+  hlt
+  jmp .hang
+
+
+SECTION .stack nobits
 resb 0x10000   ; we reserve space for our stack
 stack:

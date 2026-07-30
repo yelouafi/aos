@@ -65,7 +65,7 @@ BYTE* memset(BYTE *dest, BYTE val, int count)
     do {
 		long remainder = uns % divisor;
 		*p = digits[remainder];
-		*p++;
+		p++;
 	}  while (uns /= divisor);
  
    // add a zero to terminate string
@@ -85,30 +85,57 @@ BYTE* memset(BYTE *dest, BYTE val, int count)
 	}
 }
 
-void printMemInfo(Video &v, DWORD magic, multiboot_info *mbi) {
-	char *device[] = { "floppy A", "hard disk"};
-	
-	// is magic number valid?
-	if(magic != MULTIBOOT_MAGIC) {
-		v.printf("Assalamou Alaikoum but not from grub\n");
-		v.printf("Invalid magic number %x\n", magic);
-	} else {
-		v.printf("Assalamou Alaikoum from grub\n");
+static DWORD usableMemoryKilobytes(const multiboot_info *information)
+{
+	DWORD total = 0;
+	DWORD cursor = information->mmap_addr;
+	DWORD end = cursor + information->mmap_length;
+
+	while (cursor < end) {
+		const multiboot_memory_map_entry *entry =
+			reinterpret_cast<const multiboot_memory_map_entry *>(cursor);
+
+		if (entry->size < 20)
+			break;
+
+		if (entry->type == 1 && entry->length_high == 0)
+			total += entry->length_low / 1024;
+
+		cursor += entry->size + sizeof(entry->size);
 	}
-	
-	// if bit 1 of flags is set, then memory info is available
+
+	return total;
+}
+
+void printMemInfo(Video &v, DWORD magic, multiboot_info *mbi) {
+	const char *devices[] = { "floppy A", "hard disk" };
+
+	if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
+		v.printf("Assalamou Alaikoum without Multiboot\n");
+		v.printf("Invalid magic number %x\n", magic);
+		return;
+	}
+
+	v.printf("Assalamou Alaikoum from Multiboot\n");
+
 	if (mbi->flags & 1) {
-       v.printf ("Lower memory = %uKB\n",
-                 (unsigned) mbi->mem_lower);
-		v.printf ("Upper memory = %uKB\n",
-                 (unsigned) mbi->mem_upper);
-    }
-    
-	// if bit 2 of flags is set, then boot device info is available
-	char bootdvc = ((unsigned) mbi->boot_device >> 24) & 0xf;
-	char *boot = (bootdvc)?device[1]:device[0];
-    if (mbi->flags & 2)
-        v.printf ("Boot device = %s\n", boot);		
+		v.printf("Lower memory = %uKB\n", mbi->mem_lower);
+		v.printf("Upper memory = %uKB\n", mbi->mem_upper);
+	} else if (mbi->flags & (1 << 6)) {
+		v.printf(
+			"Usable memory = %uKB (memory map)\n",
+			usableMemoryKilobytes(mbi));
+	} else {
+		v.printf("Memory information = not provided\n");
+	}
+
+	if (mbi->flags & 2) {
+		char bootDevice = (mbi->boot_device >> 24) & 0xF;
+		const char *device = bootDevice ? devices[1] : devices[0];
+		v.printf("Boot device = %s\n", device);
+	} else {
+		v.printf("Boot device = not provided\n");
+	}
 }
 
 
@@ -116,15 +143,15 @@ void printMemInfo(Video &v, DWORD magic, multiboot_info *mbi) {
   * so we tell the compiler to preserve its name when
   * compiling to assmebly*/
 extern "C" void kmain(DWORD magic, multiboot_info *mbi) {
+	cli();
 	GDTSetup();
 	IDTSetup();
-	
+
 	initPIC();
 	initISRS();
-	sti();
 	Video v;
 	v.clear();
-	
+
 	printMemInfo(v, magic, mbi);
 	
 	Exception exc(&v);
@@ -136,7 +163,9 @@ extern "C" void kmain(DWORD magic, multiboot_info *mbi) {
 	t.setPhase(20);
 	registerHandler(32,&t);
 	setPIC1Mask(0xFE);
+	sti();
 
-	while(1);
+	while (1)
+		asm volatile("hlt");
 }
 

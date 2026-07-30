@@ -60,6 +60,29 @@ void intToString(char *buffer, char base, int number)
     }
 }
 
+static DWORD usableMemoryKilobytes(const multiboot_info *information)
+{
+    DWORD total = 0;
+    DWORD cursor = information->mmap_addr;
+    DWORD end = cursor + information->mmap_length;
+
+    while (cursor < end)
+    {
+        const multiboot_memory_map_entry *entry =
+            reinterpret_cast<const multiboot_memory_map_entry *>(cursor);
+
+        if (entry->size < 20)
+            break;
+
+        if (entry->type == 1 && entry->length_high == 0)
+            total += entry->length_low / 1024;
+
+        cursor += entry->size + sizeof(entry->size);
+    }
+
+    return total;
+}
+
 extern "C" void kmain(DWORD magic, multiboot_info *information)
 {
     GDTSetup();
@@ -76,19 +99,33 @@ extern "C" void kmain(DWORD magic, multiboot_info *information)
     else
     {
         video.printf("Assalamou Alaikoum from Multiboot\n");
-    }
 
-    if (information->flags & 1)
-    {
-        video.printf("Lower memory = %uKB\n", information->mem_lower);
-        video.printf("Upper memory = %uKB\n", information->mem_upper);
-    }
+        if (information->flags & 1)
+        {
+            video.printf("Lower memory = %uKB\n", information->mem_lower);
+            video.printf("Upper memory = %uKB\n", information->mem_upper);
+        }
+        else if (information->flags & (1 << 6))
+        {
+            video.printf(
+                "Usable memory = %uKB (memory map)\n",
+                usableMemoryKilobytes(information));
+        }
+        else
+        {
+            video.printf("Memory information = not provided\n");
+        }
 
-    if (information->flags & 2)
-    {
-        char bootDevice = (information->boot_device >> 24) & 0xF;
-        const char *device = bootDevice ? devices[1] : devices[0];
-        video.printf("Boot device = %s\n", device);
+        if (information->flags & 2)
+        {
+            char bootDevice = (information->boot_device >> 24) & 0xF;
+            const char *device = bootDevice ? devices[1] : devices[0];
+            video.printf("Boot device = %s\n", device);
+        }
+        else
+        {
+            video.printf("Boot device = not provided\n");
+        }
     }
 
     while (1)

@@ -38,7 +38,17 @@
       "asset": "lesson-03.elf",
       "media": "multiboot",
       "page": "tutorials/03-starting-a-cpp-kernel/",
-      "expectedOutput": "Assalamou Alaikoum from Multiboot"
+      "expectedOutput": "Boot device = not provided"
+    },
+    {
+      "id": "lesson-04",
+      "sourceDirectory": "lesson 04",
+      "buildTarget": "kernel",
+      "artifact": "build/kernel.elf",
+      "asset": "lesson-04.elf",
+      "media": "multiboot",
+      "page": "tutorials/04-managing-interrupts/",
+      "expectedOutput": "1 second elapsed"
     }
   ]
 }

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 760" width="1120" height="760" role="img" aria-labelledby="dispatch-title dispatch-desc">
+  <title id="dispatch-title">From a hardware event to a registered C++ handler, and back</title>
+  <desc id="dispatch-desc">A CPU exception or IRQ makes the processor consult idt[vector] and jump to the matching isrN stub in isrs.s, which pushes an error code and the vector number before falling into the shared isrCommon. isrCommon saves every register on the stack, reloads the segment registers, and calls isrDispatch in isr.cpp, which looks up handlers[vector] and calls its handle method. Control then returns through isrCommon, which restores the registers, discards the error code and vector, and executes iret. The stack at the moment isrDispatch runs holds, from the bottom up, eflags, cs, and eip pushed by the CPU, the error code and vector pushed by the stub, and the eleven saved registers that make up the regs structure.</desc>
+
+  <rect width="1120" height="760" fill="#ffffff"/>
+  <text x="560" y="42" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#0f172a">One dispatch, from silicon to C++ and back</text>
+
+  <defs>
+    <marker id="df-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="df-arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- pipeline -->
+  <rect x="30" y="70" width="190" height="86" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+  <text x="125" y="98" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">Hardware event</text>
+  <text x="125" y="118" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#64748b">IRQ0 tick, or a</text>
+  <text x="125" y="134" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#64748b">CPU exception</text>
+
+  <line x1="220" y1="113" x2="248" y2="113" stroke="#64748b" stroke-width="3" marker-end="url(#df-arrow)"/>
+
+  <rect x="250" y="70" width="190" height="86" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="345" y="98" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#1d4ed8">CPU consults idt</text>
+  <text x="345" y="118" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#1e40af">idt[vector].offset</text>
+  <text x="345" y="134" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#1e40af">jumps to isrN</text>
+
+  <line x1="440" y1="113" x2="468" y2="113" stroke="#64748b" stroke-width="3" marker-end="url(#df-arrow)"/>
+
+  <rect x="470" y="70" width="200" height="86" rx="12" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+  <text x="570" y="92" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#854d0e">isrN — isrs.s</text>
+  <text x="570" y="112" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#78350f">push error code</text>
+  <text x="570" y="128" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#78350f">push vector; jmp isrCommon</text>
+
+  <line x1="670" y1="113" x2="698" y2="113" stroke="#64748b" stroke-width="3" marker-end="url(#df-arrow)"/>
+
+  <rect x="700" y="70" width="200" height="86" rx="12" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+  <text x="800" y="92" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#854d0e">isrCommon — isrs.s</text>
+  <text x="800" y="112" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#78350f">PUSHS all registers</text>
+  <text x="800" y="128" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#78350f">reload ds/es/fs/gs</text>
+
+  <line x1="900" y1="113" x2="928" y2="113" stroke="#16a34a" stroke-width="3" marker-end="url(#df-arrow-green)"/>
+
+  <rect x="930" y="70" width="160" height="86" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="1010" y="92" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#166534">isrDispatch</text>
+  <text x="1010" y="112" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#15803d">isr.cpp</text>
+  <text x="1010" y="128" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#15803d">handlers[v]-&gt;handle()</text>
+
+  <path d="M1010,156 L1010,190 L125,190 L125,160" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#df-arrow-green)"/>
+  <text x="560" y="182" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#166534">handle() returns → isrCommon restores registers, discards the error code and vector, and executes iret</text>
+
+  <!-- Interrupt class box -->
+  <rect x="930" y="200" width="160" height="70" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+  <text x="1010" y="222" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#334155">Interrupt</text>
+  <text x="1010" y="240" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#64748b">Exception, Timer</text>
+  <text x="1010" y="256" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#64748b">override handle()</text>
+  <line x1="1010" y1="156" x2="1010" y2="200" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4"/>
+
+  <!-- stack diagram -->
+  <text x="300" y="330" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#0f172a">The stack, the moment isrDispatch runs</text>
+
+  <g font-family="ui-monospace, monospace" font-size="13">
+    <rect x="100" y="350" width="220" height="34" fill="#f8fafc" stroke="#94a3b8"/>
+    <text x="210" y="372" text-anchor="middle" fill="#334155">eflags</text>
+    <rect x="100" y="384" width="220" height="34" fill="#f8fafc" stroke="#94a3b8"/>
+    <text x="210" y="406" text-anchor="middle" fill="#334155">cs</text>
+    <rect x="100" y="418" width="220" height="34" fill="#f8fafc" stroke="#94a3b8"/>
+    <text x="210" y="440" text-anchor="middle" fill="#334155">eip</text>
+    <text x="335" y="400" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">pushed by the CPU itself</text>
+
+    <rect x="100" y="452" width="220" height="34" fill="#fefce8" stroke="#ca8a04"/>
+    <text x="210" y="474" text-anchor="middle" fill="#854d0e">error code (0 if none)</text>
+    <rect x="100" y="486" width="220" height="34" fill="#fefce8" stroke="#ca8a04"/>
+    <text x="210" y="508" text-anchor="middle" fill="#854d0e">vector</text>
+    <text x="335" y="478" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">pushed by isrN</text>
+
+    <rect x="100" y="520" width="220" height="150" fill="#f0fdf4" stroke="#16a34a"/>
+    <text x="210" y="542" text-anchor="middle" font-weight="700" fill="#166534">eax  ebx  ecx  edx</text>
+    <text x="210" y="562" text-anchor="middle" font-weight="700" fill="#166534">edi  esi  ebp</text>
+    <text x="210" y="582" text-anchor="middle" font-weight="700" fill="#166534">ds  es  fs  gs  ss</text>
+    <text x="210" y="610" text-anchor="middle" font-size="12" fill="#15803d">= struct regs</text>
+    <text x="335" y="536" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">pushed by PUSHS in</text>
+    <text x="335" y="554" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">isrCommon, in this order</text>
+  </g>
+
+  <path d="M320,655 L400,655" stroke="#16a34a" stroke-width="2" marker-end="url(#df-arrow-green)"/>
+  <rect x="410" y="620" width="300" height="70" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="560" y="644" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#166534">isrDispatch(regs r, int vector, int errorCode)</text>
+  <text x="560" y="666" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#15803d">&amp;r points straight at that saved block</text>
+
+  <rect x="60" y="700" width="1000" height="46" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="560" y="728" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#1e40af">Every isrN pushes the same shape — a real error code where the CPU supplies one, a dummy 0 otherwise — so isrCommon never has to special-case a vector.</text>
+</svg>
