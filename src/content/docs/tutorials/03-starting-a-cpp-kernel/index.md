@@ -1,10 +1,6 @@
 ---
 title: Starting a C++ Kernel
 description: Hand the boot process to GRUB through the Multiboot specification, and bring up a small C++ kernel with its own GDT and screen-printing class.
-sidebar:
-  badge:
-    text: New
-    variant: success
 ---
 
 <div class="lesson-meta">
@@ -52,7 +48,7 @@ Concretely, you will produce a `kernel.elf` made of four source files:
 | `gdt.cpp` | Build our own GDT in C++, replacing GRUB's temporary one |
 | `main.cpp` | `kmain`, the C++ entry point that ties everything together |
 
-![NASM assembles multiboot.s and g++ compiles main.cpp, video.cpp, and gdt.cpp into object files. The linker combines them with link.lds into kernel.tmp, objcopy converts it to plain ELF32, and the result, kernel.elf, is handed to GRUB.](./assets/build-pipeline.svg)
+![NASM and a freestanding C++ compiler produce four ELF32 object files. An ELF32 linker combines them with link.lds into kernel.elf, which is inspected and then loaded directly by v86 or by GRUB.](./assets/build-pipeline.svg)
 
 :::note[You are not getting a full C++ runtime]
 
@@ -120,10 +116,8 @@ Of the flags bits, three matter here:
 :::caution[Important]
 
 Our kernel sets only bits 0 and 1. Because bit 16 is off, GRUB reads the
-load addresses from the ELF program headers our linker already produces
-- the address fields our header still emits are simply ignored. This is
-exactly why Section 5's header looks eight fields wide even though only
-three of them do anything.
+load addresses from the ELF program headers our linker already produces.
+The kernel therefore uses the compact three-field header shown in Section 5.
 
 :::
 
@@ -233,39 +227,44 @@ ENTRY(entry)
 SECTIONS
 {
     . = 0x00100000;
-    code = .;
 
-    .text  . : {
+    .text : ALIGN(4096)
+    {
+        code = .;
+        KEEP(*(.multiboot))
         *(.text*)
     }
 
-    .rodata . :
-    {   *(.rodata*)    }
-    . = ALIGN(4096);
-
-
-    . = ALIGN(4096);
-    data = .;
-    .data . :  {
-        *(.*data*)
-
+    .rodata : ALIGN(4096)
+    {
+        *(.rodata*)
     }
 
-    bss = .;
-    .bss :  {
+    .data : ALIGN(4096)
+    {
+        data = .;
+        *(.data*)
+    }
+
+    .bss : ALIGN(4096)
+    {
+        bss = .;
         *(COMMON)
         *(.bss*)
-        . = ALIGN(4096);
         *(.stack)
     }
-end = .;
-/DISCARD/ :{
-                *(.note*)
-                *(.indent)
-                *(.comment)
-                *(.stab)
-                *(.stabstr)
-        }
+
+    end = .;
+
+    /DISCARD/ :
+    {
+        *(.note*)
+        *(.indent)
+        *(.comment)
+        *(.stab)
+        *(.stabstr)
+        *(.eh_frame*)
+    }
 }
 ```
 
@@ -280,8 +279,10 @@ Reading it from the top:
   much time on.
 - `code = .;` captures the location counter's value *right now*, before any
   bytes are placed, into a plain symbol named `code`. `data`, `bss`, and
-  `end` are captured the same way, at their own points in the layout. These
-  four symbols are what `multiboot.s` will hand to GRUB as address fields.
+  `end` mark the other section boundaries in the same way.
+- `KEEP(*(.multiboot))` puts the Multiboot header first and prevents the
+  linker from discarding it, keeping the header inside the first 8 KiB where
+  a Multiboot loader looks for it.
 - `*(.text*)` means "pull in every input section whose name starts with
   `.text`, from every object file, here." The same pattern repeats for
   `.rodata*`, `.*data*`, `.bss*`, and `COMMON` (the traditional home for
@@ -297,94 +298,63 @@ Reading it from the top:
 
 ## 5. Embedding the Multiboot header: multiboot.s
 
-With the linker script defining `code`, `bss`, and `end`, we can finally
-write the file that ties the header to those addresses and hands control to
-our C++ code:
+With the linker script placing `.multiboot` first, we can write the file that
+declares the header and hands the loader's runtime values to our C++ code:
 
 ```asm
-%define MULTIBOOT_HEADER_MAGIC 0x1BADB002        ; magic header
-%define MULTIBOOT_HEADER_FLAGS 0x00010003
-                  ;; flags:
-                     ;; align to 4 kb
-                     ;; give us memory info
-                     ;; header contains address fields
+%define MULTIBOOT_HEADER_MAGIC 0x1BADB002
+%define MULTIBOOT_HEADER_FLAGS 0x00000003
 %define MULTIBOOT_CHECKSUM -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
-                       ;; remember: sum of this field and the two first fields must be zero
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; code section
-
-SECTION .text
 [BITS 32]
 
-GLOBAL entry	; must be global to be visible to the linker
-entry:
-	jmp start
-
-; extern symbols defined in the linker script file
-EXTERN code, bss, end
-ALIGN 4   ; multiboot header must be 4 bytes aligned
-
+SECTION .multiboot
+ALIGN 4
 multiboot_header:
   dd MULTIBOOT_HEADER_MAGIC
   dd MULTIBOOT_HEADER_FLAGS
   dd MULTIBOOT_CHECKSUM
-  dd multiboot_header
-  dd code
-  dd bss
-  dd end
-  dd entry
 
-; program entry point, the code of kernel start here
+SECTION .text
+GLOBAL entry
+EXTERN kmain
 
-EXTERN _kmain, kmain
-
-start:
+entry:
   mov esp, stack
 
   push ebx
-  push MULTIBOOT_HEADER_MAGIC
-  %ifdef LEADING_USCORE
-	call _kmain
-  %else
-	call kmain
-  %endif
-  jmp $
+  push eax
+  call kmain
 
-SECTION .stack
-resb 0x10000   ; we reserve space for our stack
+.hang:
+  cli
+  hlt
+  jmp .hang
+
+SECTION .stack nobits
+ALIGN 16
+resb 0x10000
 stack:
 ```
 
 A few details are worth slowing down for:
 
-:::note[Why `entry` immediately jumps to `start`]
+:::note[Two different magic numbers]
 
-`ENTRY(entry)` in the linker script means GRUB's own loader jumps straight
-to the `entry` label - but the 32 bytes of `multiboot_header` sit
-*physically right after it* in the file, and those bytes are data, not
-instructions. `jmp start` exists purely to hop clean over that header and
-land on the real first instruction. It is the same trick DOS boot sectors
-and other embedded-header formats have used for decades: put a jump at
-the very front, then whatever metadata you like, then the actual code.
+`0x1BADB002` identifies the header stored in the ELF file. A successful
+Multiboot loader later places the different value `0x2BADB002` in `EAX`.
+Keeping those two roles separate is what lets the kernel verify that its
+runtime handoff is genuine.
 
 :::
 
-- `EXTERN code, bss, end` pulls in the three symbols the linker script
-  captured from the location counter, so `multiboot_header` can embed their
-  values as its (unused, since bit 16 is off) address fields.
 - `mov esp, stack` is the entire stack setup. `stack` is the label placed
   *after* `resb 0x10000` in `SECTION .stack`, so it names the top of that
   64 KiB region - exactly where a downward-growing x86 stack should start.
-- `push ebx` then `push MULTIBOOT_HEADER_MAGIC` place `kmain`'s two arguments
-  on the stack in reverse order, C calling-convention style: GRUB left the
-  `multiboot_info` pointer in `EBX` and the magic number `0x2BADB002` in
-  `EAX`, and we forward both into `kmain`.
-- `%ifdef LEADING_USCORE` chooses between `kmain` and `_kmain` depending on
-  whether the C++ compiler prefixes global symbol names with an underscore -
-  some toolchains do, some do not. The Makefile in Section 12 controls this
-  with an assembler flag, so the two sides always agree.
+- `push ebx` then `push eax` place `kmain`'s two arguments
+  on the stack in reverse order, C calling-convention style: the loader left
+  the `multiboot_info` pointer in `EBX` and the magic number `0x2BADB002`
+  in `EAX`, and we forward both into `kmain`.
 
 ## 6. What C++ can (and cannot) do without an operating system
 
@@ -429,20 +399,20 @@ and declarations for the small utility functions Section 8 implements.
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
-#define MULTIBOOT_MAGIC      0x1BADB002
+#define MULTIBOOT_BOOTLOADER_MAGIC 0x2BADB002
 
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
 typedef unsigned int DWORD;
-typedef unsigned long QWORD;
+typedef unsigned long long QWORD;
 
 typedef struct multiboot_info
 {
-	unsigned long flags;
-	unsigned long mem_lower;
-	unsigned long mem_upper;
-	unsigned long boot_device;
-} multiboot_info_t;
+	DWORD flags;
+	DWORD mem_lower;
+	DWORD mem_upper;
+	DWORD boot_device;
+} multiboot_info;
 
 inline unsigned char inb (unsigned short port)
 {
@@ -988,11 +958,12 @@ GRUB got us into protected mode; this function is what makes protected mode
 
 ## 11. main.cpp: kmain, the real entry point
 
-Everything so far exists to make this function possible: GRUB validated our
-header and jumped into `multiboot.s`, which pushed its two arguments and
-called `kmain`. `main.cpp` also happens to be where `memcpy`, `memset`, and
-`intToString` are actually defined - the same three functions Section 8
-already walked through in full, so only `kmain` itself is repeated here:
+Everything so far exists to make this function possible: a Multiboot loader
+validated our header and jumped into `multiboot.s`, which forwarded its two
+register values and called `kmain`. `main.cpp` also happens to be where
+`memcpy`, `memset`, and `intToString` are actually defined - the same three
+functions Section 8 already walked through in full, so only `kmain` itself is
+repeated here:
 
 ```cpp
 #include"video.h"
@@ -1004,14 +975,14 @@ void _alloca() {};
 extern "C" void kmain(DWORD magic, multiboot_info *mbi) {
 	GDTSetup();
 	Video v;
-	char *device[] = { "floppy A", "hard disk"};
+	const char *device[] = { "floppy A", "hard disk"};
 	v.clear();
 
-	if(magic != MULTIBOOT_MAGIC) {
-		v.printf("Assalamou Alaikoum but not from grub\n");
+	if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
+		v.printf("Assalamou Alaikoum without Multiboot\n");
 		v.printf("Invalid magic number %x\n", magic);
 	} else {
-		v.printf("Assalamou Alaikoum from grub\n");
+		v.printf("Assalamou Alaikoum from Multiboot\n");
 	}
 
 	if (mbi->flags & 1) {
@@ -1022,10 +993,11 @@ extern "C" void kmain(DWORD magic, multiboot_info *mbi) {
     }
 
 	char bootdvc = ((unsigned) mbi->boot_device >> 24) & 0xf;
-	char *boot = (bootdvc)?device[1]:device[0];
+	const char *boot = (bootdvc)?device[1]:device[0];
     if (mbi->flags & 2)
         v.printf ("Boot device = %s\n", boot);
-	while(1);
+	while (1)
+		asm volatile ("cli; hlt");
 }
 ```
 
@@ -1039,80 +1011,54 @@ In order:
 - `Video v;` constructs directly on the stack - a local object, exactly the
   case Section 6 flagged as safe without a heap or global-constructor
   support.
-- The magic-number check confirms GRUB (and not some other loader) actually
-  brought us here; either way, a greeting prints, using the `Video::printf`
+- The magic-number check confirms a Multiboot-compatible loader actually
+  brought us here; either way, a greeting prints using the `Video::printf`
   Section 9 just built.
 - `mbi->flags & 1` and `mbi->flags & 2` gate the memory and boot-device
   reports exactly the way Section 2 described - only trusting fields GRUB
   actually promised to fill in.
 - `boot_device`'s top byte identifies the BIOS drive; a two-entry lookup
   table turns it into a human-readable name.
-- `while(1);` halts forever once there is nothing left to report - there is
+- The final `cli; hlt` loop halts once there is nothing left to report - there is
   still no interrupt table to safely return control to.
 
-## 12. Building the kernel and creating a GRUB floppy
+## 12. Building and running the kernel
 
-The Makefile drives four compiles, one link, and one format conversion:
-
-```make
-CPPFLAGS = -c -fno-builtin
-
-.PHONY:  clean
-
-OBJS = multiboot.o main.o video.o gdt.o
-
-all: kernel.elf
-
-kernel.elf: $(OBJS) link.lds
-	#if you are on linux you can put directly  ld -T link.lds $(OBJS) -o kernel.elf
-	ld -T link.lds $(OBJS) -o kernel.tmp
-	#remove the following if you are using linux
-	objcopy -O elf32-i386 kernel.tmp kernel.elf
-	$(RM) kernel.tmp
-
-clean:
-	$(RM) $(OBJS)
-
-
-%.o: %.cpp
-	g++ $(CPPFLAGS) $< -o $@
-
-video.cpp: system.h video.h
-main.cpp: system.h
-
-
-multiboot.o: multiboot.s
-	#remove the -DLEADING_USCORE option if your compiler doesn't insert the '_' char
-	#at symbol beginning
-	nasm -f elf  -DLEADING_USCORE $< -o $@
-```
-
-A couple of lines are toolchain-specific rather than universal, and worth
-flagging before you hit them as confusing errors:
-
-:::caution[Two lines you may need to adjust]
-
-- `objcopy -O elf32-i386 kernel.tmp kernel.elf` exists because some
-  linkers (Cygwin's among them) cannot emit a plain ELF32 image
-  directly. On a Linux toolchain, `ld -T link.lds $(OBJS) -o kernel.elf`
-  alone is enough - skip the `objcopy` step entirely.
-- `-DLEADING_USCORE` must match whatever your C++ compiler actually does
-  to symbol names. Get it wrong, and linking fails with
-  `undefined reference to 'kmain'` - the assembler and compiler will
-  have generated two different names for the same function.
-
-:::
-
-Build it:
+The repository Makefile assembles the entry stub as ELF32, compiles the C++
+without a hosted runtime, and links everything at `0x00100000`:
 
 ```sh
-make
+make -C "lesson 03" kernel
+make -C "lesson 03" inspect
 ```
 
-`kernel.elf` is now a complete Multiboot-compliant kernel - but GRUB still
-needs somewhere to load it from. The most direct way to try it is a floppy
-image containing GRUB itself, prepared with GRUB's own tools, with our
-kernel copied onto it and a small configuration file pointing GRUB at it:
+The inspection step verifies both the executable format and the header:
+
+```text
+format: ... ELF 32-bit ... Intel 80386 ...
+multiboot header: 1badb002
+```
+
+### Run it in your browser
+
+For this playground, v86 implements the Multiboot loader contract directly.
+It loads the same `kernel.elf`, places the runtime magic in `EAX`, places the
+information pointer in `EBX`, and starts at `entry`. There is no GRUB menu or
+CD-ROM image in this path.
+
+<div
+  data-aos-v86-playground
+  lesson="lesson-03"
+  title="Lesson 03 · Start the C++ kernel"
+  media="multiboot"
+  artifact="lesson-03.elf"
+  memory-mib="32"
+  expected-output="Assalamou Alaikoum from Multiboot"
+></div>
+
+`kernel.elf` is also a normal Multiboot-compliant kernel that GRUB can load.
+To follow the original GRUB route, prepare a floppy image containing GRUB,
+copy the kernel onto it, and add a small configuration file:
 
 ```text
 default 0
@@ -1131,25 +1077,25 @@ Boot it in an emulator such as Bochs or QEMU, and GRUB's own menu appears
 first - pick the single entry, and the machine hands control to our kernel:
 
 ```text
-Assalamou Alaikoum from grub
+Assalamou Alaikoum from Multiboot
 Lower memory = 639KB
 Upper memory = 31744KB
 Boot device = floppy A
 ```
 
 The exact memory figures will vary by machine - what matters is that every
-line came from `mbi`, the structure GRUB itself built and handed to
-`kmain`, printed through a `printf` we wrote ourselves, on a screen managed
-by a `Video` object instead of loose assembly.
+line came from `mbi`, the structure the loader built and handed to `kmain`,
+printed through a `printf` we wrote ourselves, on a screen managed by a
+`Video` object instead of loose assembly.
 
 ## 13. Troubleshooting
 
 | Symptom | Likely cause |
 |---|---|
-| `undefined reference to 'kmain'` | `-DLEADING_USCORE` does not match your compiler's symbol-naming convention |
+| `undefined reference to 'kmain'` | The assembly declaration and the C++ `extern "C"` symbol do not agree |
 | GRUB refuses to boot the kernel, or reports an invalid Multiboot image | The header is not 4-byte aligned, sits past byte 8192, or the checksum is wrong |
 | `Invalid magic number` prints on screen | Something other than a Multiboot-compliant loader started the kernel |
-| Linking fails on a Cygwin toolchain | `objcopy -O elf32-i386` was skipped; `ld` alone may not produce a plain ELF32 image |
+| Linking produces a Mach-O or 64-bit file | Use an ELF32-capable linker and the Makefile's freestanding i386 target |
 | The screen prints garbage instead of text | Check `_attribute`, the `(_y*width + _x) * 2` indexing, and that `mem` still points at `0xB8000` |
 | The machine resets instead of printing anything | Check `GDTSetup()` runs before anything else, and that `esp` was set to `stack` in `multiboot.s` |
 

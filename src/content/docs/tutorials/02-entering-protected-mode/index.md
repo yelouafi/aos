@@ -1,10 +1,6 @@
 ---
 title: Entering 32-bit Protected Mode
 description: Build a Global Descriptor Table, switch an x86 CPU into 32-bit protected mode, and write directly to VGA text memory.
-sidebar:
-  badge:
-    text: New
-    variant: success
 ---
 
 <div class="lesson-meta">
@@ -836,6 +832,19 @@ Its first two sectors are:
 |---|---|
 | Sector 1, bytes `0-511` | `boot.bin` |
 | Sector 2, starting at byte `512` | `kernel.bin`, followed by zeroes |
+
+### Run it in your browser
+
+This playground boots the same floppy image in v86. Reaching `Protected mode
+is active.` proves that the loader read the kernel, installed the GDT, enabled
+protected mode, entered 32-bit code, and wrote directly to VGA memory.
+
+<div
+  data-aos-v86-playground
+  lesson="lesson-02"
+  title="Lesson 02 · Enter protected mode"
+  expected-output="Protected mode is active."
+></div>
 
 If `qemu-system-i386` is installed, this is the moment to actually see it
 happen:

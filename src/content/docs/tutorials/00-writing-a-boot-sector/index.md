@@ -1,10 +1,6 @@
 ---
 title: Writing Your First Boot Sector
 description: Learn the foundations of PC architecture and x86 assembly, then build a 512-byte boot sector.
-sidebar:
-  badge:
-    text: New
-    variant: success
 ---
 
 <div class="lesson-meta">
@@ -821,50 +817,12 @@ This is the exact floppy image produced by the lesson's source and Makefile,
 booted in an x86 PC emulator inside this page. The emulator only starts when
 you ask it to, and everything runs locally in your browser.
 
-<div class="aos-playground" data-v86-playground="lesson-00">
-  <div class="aos-playground__header">
-    <div>
-      <span class="aos-playground__eyebrow">AOS browser lab</span>
-      <h4 class="aos-playground__title">Lesson 00 · Boot sector</h4>
-      <p class="aos-playground__description">SeaBIOS will boot <code>lesson-00.img</code> as a 1.44 MiB floppy disk.</p>
-    </div>
-    <div class="aos-playground__status" data-v86-status data-state="idle" role="status" aria-live="polite">
-      <span class="aos-playground__status-dot" aria-hidden="true"></span>
-      <span data-v86-status-text>Ready to start</span>
-    </div>
-  </div>
-
-  <div class="aos-playground__controls" aria-label="Emulator controls">
-    <button class="aos-playground__button aos-playground__button--primary" type="button" data-v86-action="start">
-      Start emulator
-    </button>
-    <button class="aos-playground__button" type="button" data-v86-action="pause" disabled>
-      Pause
-    </button>
-    <button class="aos-playground__button" type="button" data-v86-action="reset" disabled>
-      Reset
-    </button>
-  </div>
-
-  <div class="aos-playground__display">
-    <div class="aos-playground__placeholder" data-v86-placeholder>
-      <strong>PC powered off</strong>
-      <span>Press Start emulator to boot the lesson image.</span>
-    </div>
-    <div class="aos-playground__screen" data-v86-screen aria-label="Emulated PC display">
-      <div class="aos-playground__text-screen"></div>
-      <canvas class="aos-playground__canvas"></canvas>
-    </div>
-  </div>
-
-  <div class="aos-playground__footer">
-    <span>The first start downloads the emulator runtime, BIOS, and floppy image.</span>
-    <details class="aos-playground__error" data-v86-error hidden>
-      <summary>Technical details</summary>
-      <pre data-v86-error-text></pre>
-    </details>
-  </div>
-</div>
+<div
+  data-aos-v86-playground
+  lesson="lesson-00"
+  title="Lesson 00 · Boot sector"
+  expected-output="Peace be upon you!"
+></div>
 
 If `qemu-system-i386` is installed, start the virtual PC with:
 

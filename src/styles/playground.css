@@ -1,4 +1,5 @@
 .aos-playground {
+  display: block;
   margin: 1.5rem 0;
   overflow: hidden;
   border: 1px solid var(--sl-color-hairline-light);
@@ -222,6 +223,13 @@
 
 .aos-playground__error pre {
   overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.aos-playground__configuration-error {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #dc2626;
   white-space: pre-wrap;
 }
 

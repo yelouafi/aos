@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 520" width="1120" height="520" role="img" aria-labelledby="pipeline-title pipeline-desc">
   <title id="pipeline-title">From four source files to a Multiboot kernel image</title>
-  <desc id="pipeline-desc">NASM assembles multiboot.s and g++ compiles main.cpp, video.cpp, and gdt.cpp into object files. The linker combines them using link.lds into kernel.tmp, objcopy converts it to a plain ELF32 image, and the result, kernel.elf, is handed to GRUB.</desc>
+  <desc id="pipeline-desc">NASM assembles multiboot.s and a freestanding C++ compiler builds main.cpp, video.cpp, and gdt.cpp. An ELF32 linker combines the object files using link.lds into kernel.elf, which is inspected and then loaded directly by v86 or by GRUB.</desc>
   <defs>
     <marker id="pipe-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
@@ -20,7 +20,7 @@
   <rect x="405" y="92" width="310" height="150" rx="18" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
   <text x="560" y="128" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#0f172a">Assemble &amp; compile</text>
   <text x="560" y="163" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#334155">nasm -f elf</text>
-  <text x="560" y="192" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#334155">g++ -c -fno-builtin</text>
+  <text x="560" y="192" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#334155">C++ -ffreestanding</text>
   <text x="560" y="221" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">no standard library involved</text>
 
   <rect x="775" y="92" width="310" height="150" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
@@ -36,21 +36,21 @@
 
   <rect x="35" y="335" width="310" height="150" rx="18" fill="#fefce8" stroke="#ca8a04" stroke-width="3"/>
   <text x="190" y="371" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#854d0e">Link</text>
-  <text x="190" y="405" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#a16207">ld -T link.lds</text>
-  <text x="190" y="433" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">produces kernel.tmp</text>
+  <text x="190" y="405" text-anchor="middle" font-family="ui-monospace, monospace" font-size="16" fill="#a16207">ld -m elf_i386</text>
+  <text x="190" y="433" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">produces kernel.elf</text>
   <text x="190" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">our own layout, no OS loader</text>
 
   <rect x="405" y="335" width="310" height="150" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
-  <text x="560" y="371" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#065f46">Convert format</text>
-  <text x="560" y="405" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#047857">objcopy -O elf32-i386</text>
-  <text x="560" y="433" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">only needed on some toolchains</text>
-  <text x="560" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">(e.g. Cygwin's ld)</text>
+  <text x="560" y="371" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#065f46">Inspect</text>
+  <text x="560" y="405" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15" fill="#047857">file · od</text>
+  <text x="560" y="433" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">checks ELF32 format</text>
+  <text x="560" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">and Multiboot header</text>
 
   <rect x="775" y="335" width="310" height="150" rx="18" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/>
   <text x="930" y="371" text-anchor="middle" font-family="system-ui, sans-serif" font-size="21" font-weight="700" fill="#166534">kernel.elf</text>
   <text x="930" y="405" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#15803d">Multiboot header inside</text>
   <text x="930" y="428" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#15803d">the first 8 KiB</text>
-  <text x="930" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">ready for GRUB to load</text>
+  <text x="930" y="454" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#64748b">ready for v86 or GRUB</text>
 
   <line x1="345" y1="410" x2="394" y2="410" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/>
   <line x1="715" y1="410" x2="764" y2="410" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/>

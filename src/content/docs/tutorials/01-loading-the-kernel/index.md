@@ -1,10 +1,6 @@
 ---
 title: Loading the Kernel from a Floppy Disk
 description: Build a 16-bit x86 boot sector that loads and starts a tiny kernel from a floppy disk.
-sidebar:
-  badge:
-    text: New
-    variant: success
 ---
 
 <div class="lesson-meta">
@@ -449,6 +445,19 @@ cat boot.bin kernel.bin > aos.img
 The resulting `aos.img` is 1,024 bytes. It contains the boot sector followed
 immediately by the kernel sector and can be attached as a raw floppy image in
 an x86 emulator such as Bochs.
+
+### Run it in your browser
+
+The playground uses the same two assembled sectors, padded to a standard
+1.44 MiB floppy image. Reaching `Kernel loaded.` proves that the boot sector
+read sector 2 and transferred control to the kernel.
+
+<div
+  data-aos-v86-playground
+  lesson="lesson-01"
+  title="Lesson 01 · Load the kernel"
+  expected-output="Kernel loaded."
+></div>
 
 :::caution[Warning]
 

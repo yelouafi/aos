@@ -1,0 +1,44 @@
+{
+  "playgrounds": [
+    {
+      "id": "lesson-00",
+      "sourceDirectory": "lesson 00",
+      "buildTarget": "image",
+      "artifact": "build/lesson-00.img",
+      "asset": "lesson-00.img",
+      "media": "floppy",
+      "page": "tutorials/00-writing-a-boot-sector/",
+      "expectedOutput": "Peace be upon you!"
+    },
+    {
+      "id": "lesson-01",
+      "sourceDirectory": "lesson 01",
+      "buildTarget": "image",
+      "artifact": "build/lesson-01.img",
+      "asset": "lesson-01.img",
+      "media": "floppy",
+      "page": "tutorials/01-loading-the-kernel/",
+      "expectedOutput": "Kernel loaded."
+    },
+    {
+      "id": "lesson-02",
+      "sourceDirectory": "lesson 02",
+      "buildTarget": "image",
+      "artifact": "build/lesson-02.img",
+      "asset": "lesson-02.img",
+      "media": "floppy",
+      "page": "tutorials/02-entering-protected-mode/",
+      "expectedOutput": "Protected mode is active."
+    },
+    {
+      "id": "lesson-03",
+      "sourceDirectory": "lesson 03",
+      "buildTarget": "kernel",
+      "artifact": "build/kernel.elf",
+      "asset": "lesson-03.elf",
+      "media": "multiboot",
+      "page": "tutorials/03-starting-a-cpp-kernel/",
+      "expectedOutput": "Assalamou Alaikoum from Multiboot"
+    }
+  ]
+}
