@@ -38,7 +38,7 @@
       "asset": "lesson-03.elf",
       "media": "multiboot",
       "page": "tutorials/03-starting-a-cpp-kernel/",
-      "expectedOutput": "Assalamou Alaikoum from Multiboot"
+      "expectedOutput": "Boot device = not provided"
     }
   ]
 }

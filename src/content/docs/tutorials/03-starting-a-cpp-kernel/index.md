@@ -127,20 +127,38 @@ memory, the boot device, and more - and hands a pointer to it directly to
 our code:
 
 ```cpp
+typedef struct multiboot_memory_map_entry
+{
+    unsigned long size;
+    unsigned long address_low;
+    unsigned long address_high;
+    unsigned long length_low;
+    unsigned long length_high;
+    unsigned long type;
+} multiboot_memory_map_entry;
+
 typedef struct multiboot_info
 {
     unsigned long flags;
     unsigned long mem_lower;
     unsigned long mem_upper;
     unsigned long boot_device;
+    unsigned long cmdline;
+    unsigned long mods_count;
+    unsigned long mods_addr;
+    unsigned long symbols[4];
+    unsigned long mmap_length;
+    unsigned long mmap_addr;
 } multiboot_info_t;
 ```
 
 The `flags` field tells us which of the other fields are actually valid: bit
 0 set means `mem_lower` and `mem_upper` hold real values (conventional and
 extended memory, both in kilobytes); bit 1 set means `boot_device` identifies
-which drive GRUB booted from. This is the same structure Section 11's
-`kmain` reads to print what GRUB discovered about the machine.
+which drive GRUB booted from; and bit 6 set means `mmap_addr` and
+`mmap_length` describe a sequence of variable-length memory-map entries.
+Loaders do not have to provide all three forms. Section 11 checks each flag
+before touching the corresponding fields.
 
 ![In Lesson 02, the boot sector built its own GDT and set CR0.PE itself. In Lesson 03, GRUB reads the Multiboot header, loads kernel.elf, builds a temporary GDT, enters protected mode on its own, and jumps to the kernel entry point with EAX holding the magic number and EBX holding a pointer to the multiboot_info structure.](./assets/multiboot-handoff.svg)
 
@@ -406,12 +424,28 @@ typedef unsigned short WORD;
 typedef unsigned int DWORD;
 typedef unsigned long long QWORD;
 
+typedef struct multiboot_memory_map_entry
+{
+    DWORD size;
+    DWORD address_low;
+    DWORD address_high;
+    DWORD length_low;
+    DWORD length_high;
+    DWORD type;
+} multiboot_memory_map_entry;
+
 typedef struct multiboot_info
 {
 	DWORD flags;
 	DWORD mem_lower;
 	DWORD mem_upper;
 	DWORD boot_device;
+	DWORD cmdline;
+	DWORD mods_count;
+	DWORD mods_addr;
+	DWORD symbols[4];
+	DWORD mmap_length;
+	DWORD mmap_addr;
 } multiboot_info;
 
 inline unsigned char inb (unsigned short port)
@@ -966,38 +1000,76 @@ functions Section 8 already walked through in full, so only `kmain` itself is
 repeated here:
 
 ```cpp
-#include"video.h"
+static DWORD usableMemoryKilobytes(const multiboot_info *information)
+{
+    DWORD total = 0;
+    DWORD cursor = information->mmap_addr;
+    DWORD end = cursor + information->mmap_length;
 
-// function's called by gcc cygwin compiler
-void __main() {};
-void _alloca() {};
+    while (cursor < end)
+    {
+        const multiboot_memory_map_entry *entry =
+            reinterpret_cast<const multiboot_memory_map_entry *>(cursor);
 
-extern "C" void kmain(DWORD magic, multiboot_info *mbi) {
-	GDTSetup();
-	Video v;
-	const char *device[] = { "floppy A", "hard disk"};
-	v.clear();
+        if (entry->size < 20)
+            break;
 
-	if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-		v.printf("Assalamou Alaikoum without Multiboot\n");
-		v.printf("Invalid magic number %x\n", magic);
-	} else {
-		v.printf("Assalamou Alaikoum from Multiboot\n");
-	}
+        if (entry->type == 1 && entry->length_high == 0)
+            total += entry->length_low / 1024;
 
-	if (mbi->flags & 1) {
-       v.printf ("Lower memory = %uKB\n",
-                 (unsigned) mbi->mem_lower);
-		v.printf ("Upper memory = %uKB\n",
-                 (unsigned) mbi->mem_upper);
+        cursor += entry->size + sizeof(entry->size);
     }
 
-	char bootdvc = ((unsigned) mbi->boot_device >> 24) & 0xf;
-	const char *boot = (bootdvc)?device[1]:device[0];
-    if (mbi->flags & 2)
-        v.printf ("Boot device = %s\n", boot);
-	while (1)
-		asm volatile ("cli; hlt");
+    return total;
+}
+
+extern "C" void kmain(DWORD magic, multiboot_info *information)
+{
+    GDTSetup();
+
+    Video video;
+    const char *devices[] = { "floppy A", "hard disk" };
+    video.clear();
+
+    if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
+    {
+        video.printf("Assalamou Alaikoum without Multiboot\n");
+        video.printf("Invalid magic number %x\n", magic);
+    }
+    else
+    {
+        video.printf("Assalamou Alaikoum from Multiboot\n");
+
+        if (information->flags & 1)
+        {
+            video.printf("Lower memory = %uKB\n", information->mem_lower);
+            video.printf("Upper memory = %uKB\n", information->mem_upper);
+        }
+        else if (information->flags & (1 << 6))
+        {
+            video.printf(
+                "Usable memory = %uKB (memory map)\n",
+                usableMemoryKilobytes(information));
+        }
+        else
+        {
+            video.printf("Memory information = not provided\n");
+        }
+
+        if (information->flags & 2)
+        {
+            char bootDevice = (information->boot_device >> 24) & 0xF;
+            const char *device = bootDevice ? devices[1] : devices[0];
+            video.printf("Boot device = %s\n", device);
+        }
+        else
+        {
+            video.printf("Boot device = not provided\n");
+        }
+    }
+
+    while (1)
+        asm volatile("cli; hlt");
 }
 ```
 
@@ -1008,17 +1080,18 @@ In order:
   `multiboot.s`'s `call kmain` would find nothing to link against.
 - `GDTSetup()` runs first, installing our own descriptors before anything
   else depends on protected mode behaving predictably.
-- `Video v;` constructs directly on the stack - a local object, exactly the
+- `Video video;` constructs directly on the stack - a local object, exactly the
   case Section 6 flagged as safe without a heap or global-constructor
   support.
 - The magic-number check confirms a Multiboot-compatible loader actually
   brought us here; either way, a greeting prints using the `Video::printf`
   Section 9 just built.
-- `mbi->flags & 1` and `mbi->flags & 2` gate the memory and boot-device
-  reports exactly the way Section 2 described - only trusting fields GRUB
-  actually promised to fill in.
+- The runtime flags gate every optional field. The kernel accepts either
+  the compact lower/upper-memory pair from bit 0 or the richer memory map
+  from bit 6. Type 1 map entries identify usable RAM.
 - `boot_device`'s top byte identifies the BIOS drive; a two-entry lookup
-  table turns it into a human-readable name.
+  table turns it into a human-readable name. When a direct loader did not
+  boot from a disk, the kernel reports that the field was not provided.
 - The final `cli; hlt` loop halts once there is nothing left to report - there is
   still no interrupt table to safely return control to.
 
@@ -1053,8 +1126,19 @@ CD-ROM image in this path.
   media="multiboot"
   artifact="lesson-03.elf"
   memory-mib="32"
-  expected-output="Assalamou Alaikoum from Multiboot"
+  expected-output="Boot device = not provided"
 ></div>
+
+v86 supplies a Multiboot memory map (runtime flag 6) for this direct-loading
+path, rather than the older lower/upper-memory fields. It also supplies no
+boot-device field because no disk was involved. The browser output therefore
+looks like this:
+
+```text
+Assalamou Alaikoum from Multiboot
+Usable memory = ...KB (memory map)
+Boot device = not provided
+```
 
 `kernel.elf` is also a normal Multiboot-compliant kernel that GRUB can load.
 To follow the original GRUB route, prepare a floppy image containing GRUB,
@@ -1107,8 +1191,8 @@ plumbing, more of the actual kernel. You now have a kernel that:
 - Declares a Multiboot header GRUB recognizes and validates.
 - Uses a linker script to lay out `.text`, `.rodata`, `.data`, and `.bss`
   at a chosen load address, without any help from an OS toolchain default.
-- Reads the `multiboot_info` structure GRUB fills in, including available
-  memory and the boot device.
+- Reads the `multiboot_info` structure its loader fills in, including
+  available memory and an optional boot device.
 - Prints to the screen through a small `Video` class with its own cursor,
   scrolling, and `printf`.
 - Replaces GRUB's temporary GDT with one built and loaded from C++.

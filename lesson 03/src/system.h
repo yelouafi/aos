@@ -8,12 +8,28 @@ typedef unsigned long long QWORD;
 
 #define MULTIBOOT_BOOTLOADER_MAGIC 0x2BADB002
 
+typedef struct multiboot_memory_map_entry
+{
+    DWORD size;
+    DWORD address_low;
+    DWORD address_high;
+    DWORD length_low;
+    DWORD length_high;
+    DWORD type;
+} multiboot_memory_map_entry;
+
 typedef struct multiboot_info
 {
     DWORD flags;
     DWORD mem_lower;
     DWORD mem_upper;
     DWORD boot_device;
+    DWORD cmdline;
+    DWORD mods_count;
+    DWORD mods_addr;
+    DWORD symbols[4];
+    DWORD mmap_length;
+    DWORD mmap_addr;
 } multiboot_info;
 
 inline unsigned char inb(unsigned short port)
