@@ -1,0 +1,19 @@
+{
+  "name": "aos-kernel-tutorials",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "playground:lesson-00": "make -C \"lesson 00\" image inspect && cp \"lesson 00/build/lesson-00.img\" public/assets/playground/lesson-00.img",
+    "test": "npm run playground:lesson-00 && npm run build"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.5",
+    "astro": "^7.1.6"
+  }
+}

@@ -37,6 +37,10 @@
 # Documentation build output
 site/
 .venv/
+dist/
+.astro/
+node_modules/
+.playwright-cli/
 
 # Lesson build output
 lesson 00/build/

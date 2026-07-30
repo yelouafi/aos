@@ -1,18 +1,19 @@
 ---
 title: Entering 32-bit Protected Mode
 description: Build a Global Descriptor Table, switch an x86 CPU into 32-bit protected mode, and write directly to VGA text memory.
-status: new
+sidebar:
+  badge:
+    text: New
+    variant: success
 ---
 
-<div align="center">
+<div class="lesson-meta">
 
-<sub>AOS TUTORIALS · LESSON 02</sub>
+<div class="lesson-meta__eyebrow">AOS TUTORIALS · LESSON 02</div>
 
-<h1>Entering 32-bit Protected Mode</h1>
+<p class="lesson-meta__summary"><strong>Give the CPU a new map of memory, then step into 32-bit code</strong></p>
 
-<p><strong>Give the CPU a new map of memory, then step into 32-bit code</strong></p>
-
-<p>
+<p class="lesson-meta__topics">
   <kbd>x86</kbd>
   <kbd>Protected mode</kbd>
   <kbd>GDT</kbd>
@@ -23,7 +24,7 @@ status: new
 
 ## What you will build
 
-[Lesson 01](../01-loading-the-kernel/index.md) ended with a boot sector that loaded
+[Lesson 01](../01-loading-the-kernel/) ended with a boot sector that loaded
 a second program from disk and jumped straight into it. That was real progress -
 but both programs were still living in the CPU's cozy, BIOS-provided startup
 world, asking `INT 10h` to print every character for us.
@@ -59,9 +60,7 @@ program that owns the machine."
 | VGA text buffer | `0xB8000` | Hold screen characters and colors |
 | GDT | Inside the boot sector | Describe the code and data address spaces |
 
-<p align="center">
-  <img src="./assets/protected-mode-transition.svg" alt="The boot sector loads the kernel, installs a GDT, sets the protected-enable bit, performs a far jump, reloads its data segments, and transfers control to the 32-bit kernel." width="100%">
-</p>
+![The boot sector loads the kernel, installs a GDT, sets the protected-enable bit, performs a far jump, reloads its data segments, and transfers control to the 32-bit kernel.](./assets/protected-mode-transition.svg)
 
 If some of what follows feels dense on a first read, that is completely normal -
 protected mode touches almost everything about how the CPU thinks about memory.
@@ -102,11 +101,13 @@ the same way an `n`-digit combination lock has `2^n` possible combinations.
 | 20 | `2^20 = 1,048,576` (1 MiB) |
 | 32 | `2^32 = 4,294,967,296` (4 GiB) |
 
-!!! important
+:::caution[Important]
 
-    An address space is the set of addresses the CPU **can express** - think of
-    it as the size of the mailbox directory, not how many mailboxes happen to be
-    full. It is not the amount of RAM physically installed in the computer.
+An address space is the set of addresses the CPU **can express** - think of
+it as the size of the mailbox directory, not how many mailboxes happen to be
+full. It is not the amount of RAM physically installed in the computer.
+
+:::
 
 The original 8086 exposed 20 address lines, covering the first 1 MiB - the
 entire directory it could ever address. BIOS-compatible startup still preserves
@@ -232,12 +233,14 @@ This layer of indirection is exactly what makes features like privilege levels
 and per-region memory validation possible: the CPU can refuse a selector, or the
 access that comes with it, before ever touching RAM.
 
-!!! note "A third historical mode"
+:::note[A third historical mode]
 
-    The source lesson also mentions virtual-8086 mode, which lets software run
-    certain 8086-style programs underneath a protected-mode operating system.
-    You may see it referenced elsewhere in x86 material; feel free to file it
-    away and move on - this kernel never touches it.
+The source lesson also mentions virtual-8086 mode, which lets software run
+certain 8086-style programs underneath a protected-mode operating system.
+You may see it referenced elsewhere in x86 material; feel free to file it
+away and move on - this kernel never touches it.
+
+:::
 
 ### The flat memory model
 
@@ -259,9 +262,7 @@ linear address = descriptor base 0 + offset
 Segmentation still exists underneath, but from here on it no longer shifts
 anything - every offset you write in code is the real address.
 
-<p align="center">
-  <img src="./assets/address-translation-real-vs-protected.svg" alt="Real mode multiplies a 16-bit segment by 16 and adds a 16-bit offset to form a physical address directly. Protected mode uses a selector to look up a descriptor in the GDT, then adds the offset to the descriptor's base after the CPU checks its rules, forming a linear address." width="100%">
-</p>
+![Real mode multiplies a 16-bit segment by 16 and adds a 16-bit offset to form a physical address directly. Protected mode uses a selector to look up a descriptor in the GDT, then adds the offset to the descriptor's base after the CPU checks its rules, forming a linear address.](./assets/address-translation-real-vs-protected.svg)
 
 ## 3. Selectors and the Global Descriptor Table
 
@@ -290,9 +291,7 @@ Therefore:
 2 × 8 = 0x10  → data descriptor
 ```
 
-<p align="center">
-  <img src="./assets/gdt-and-selectors.svg" alt="Selector 0x08 chooses GDT entry 1 for code, while selector 0x10 chooses entry 2 for data and the stack. Entry 0 is the required null descriptor." width="100%">
-</p>
+![Selector 0x08 chooses GDT entry 1 for code, while selector 0x10 chooses entry 2 for data and the stack. Entry 0 is the required null descriptor.](./assets/gdt-and-selectors.svg)
 
 ### The null descriptor
 
@@ -300,7 +299,7 @@ Index 0 is required to be unusable - not by convention, but by rule. Its job is
 to make selector zero mean "no segment, deliberately," instead of accidentally
 selecting valid memory if a bug ever leaves a segment register at zero.
 
-```nasm
+```asm
 gdtNull:
     dq 0
 ```
@@ -313,9 +312,7 @@ the whole entry.
 An x86 code or data descriptor packs a surprising amount of information into
 just 64 bits:
 
-<p align="center">
-  <img src="./assets/segment-descriptor.svg" alt="A 64-bit x86 segment descriptor divided into base, limit, access, granularity, size, and status fields." width="100%">
-</p>
+![A 64-bit x86 segment descriptor divided into base, limit, access, granularity, size, and status fields.](./assets/segment-descriptor.svg)
 
 The main fields are:
 
@@ -338,7 +335,7 @@ out of an 8-byte structure designed long before flat addressing existed.
 
 ### Our code descriptor
 
-```nasm
+```asm
 gdtCode:
     dw 0xFFFF
     dw 0x0000
@@ -361,7 +358,7 @@ code/data-style descriptor, executable, and readable. The flags/limit byte
 
 ### Our data descriptor
 
-```nasm
+```asm
 gdtData:
     dw 0xFFFF
     dw 0x0000
@@ -385,7 +382,7 @@ find it. That is what the **GDTR** register is for. It holds:
 
 Our pointer is:
 
-```nasm
+```asm
 gdtPointer:
     dw gdtEnd - gdtStart - 1
     dd BOOT_ADDRESS + gdtStart
@@ -404,7 +401,7 @@ happy to reset itself before you ever find out why.
 
 ### Step 1: disable interrupts
 
-```nasm
+```asm
 cli
 ```
 
@@ -416,7 +413,7 @@ structures and handlers this requires.
 
 ### Step 2: load the GDT register
 
-```nasm
+```asm
 lgdt [gdtPointer]
 ```
 
@@ -430,7 +427,7 @@ Control register `CR0` holds system-wide CPU settings, and its least-significant
 bit - `PE`, the protected-enable bit - is the one that matters here. Flipping it
 is the single moment the CPU's behavior actually changes:
 
-```nasm
+```asm
 mov eax, cr0
 or eax, 0x00000001
 mov cr0, eax
@@ -448,7 +445,7 @@ reloads it. A **far jump** is that something: it loads `CS` with selector `0x08`
 and, in the same instruction, starts fetching through our new 32-bit code
 descriptor:
 
-```nasm
+```asm
 jmp dword CODE_SELECTOR:(BOOT_ADDRESS + protectedEntry)
 ```
 
@@ -459,7 +456,7 @@ otherwise we would land in the wrong place by exactly `0x7C00` bytes.
 
 ### Step 5: assemble the new instructions as 32-bit code
 
-```nasm
+```asm
 [BITS 32]
 protectedEntry:
 ```
@@ -472,7 +469,7 @@ NASM emits actually match what the CPU is now expecting to decode.
 
 ### Step 6: reload data segments and the stack
 
-```nasm
+```asm
 mov ax, DATA_SELECTOR
 mov ds, ax
 mov es, ax
@@ -489,7 +486,7 @@ place of the old 16-bit `SP`, pointed at a comfortably empty region below
 
 ### Step 7: jump to the loaded kernel
 
-```nasm
+```asm
 jmp dword CODE_SELECTOR:KERNEL_ADDRESS
 ```
 
@@ -497,12 +494,14 @@ The code descriptor's base is zero and the kernel sits at linear address
 `0x1000`, so the new `CS:EIP` becomes `0x08:0x00001000` - the first instruction
 of the kernel we loaded, back before any of this mode-switching began.
 
-!!! note "Why this lesson does not enable A20"
+:::note[Why this lesson does not enable A20]
 
-    Every address used here is below 1 MiB: the kernel is at `0x1000`, the boot
-    sector at `0x7C00`, the VGA buffer at `0xB8000`, and the stack below
-    `0xA0000`. A later loader must enable the A20 address line before relying on
-    memory above the first MiB.
+Every address used here is below 1 MiB: the kernel is at `0x1000`, the boot
+sector at `0x7C00`, the VGA buffer at `0xB8000`, and the stack below
+`0xA0000`. A later loader must enable the A20 address line before relying on
+memory above the first MiB.
+
+:::
 
 ## 5. Complete boot-sector source
 
@@ -513,7 +512,7 @@ error message, laid out in the order the CPU actually runs through them.
 <details markdown="1">
 <summary><strong>Show lesson 02/src/boot.asm</strong></summary>
 
-```nasm
+```asm
 ; AOS Lesson 02 - Entering 32-bit protected mode
 
 [BITS 16]
@@ -687,9 +686,7 @@ Each cell occupies two bytes:
 The complete screen therefore occupies `2,000 × 2 = 4,000` bytes - small enough
 to clear or repaint in a tight loop, with no help from the BIOS.
 
-<p align="center">
-  <img src="./assets/vga-text-memory.svg" alt="VGA text memory begins at address 0xB8000. Each screen cell contains one character byte followed by one color-attribute byte." width="100%">
-</p>
+![VGA text memory begins at address 0xB8000. Each screen cell contains one character byte followed by one color-attribute byte.](./assets/vga-text-memory.svg)
 
 ### The attribute byte
 
@@ -708,7 +705,7 @@ foreground = 0111 (light gray)
 
 The kernel writes a space and attribute `0x07` to every cell:
 
-```nasm
+```asm
 mov ebx, VIDEO_MEMORY
 mov ecx, SCREEN_CELLS
 
@@ -729,7 +726,7 @@ pair.
 The message is still nothing more exotic than a null-terminated string, just
 like the ones printed through the BIOS in earlier lessons:
 
-```nasm
+```asm
 message db "Protected mode is active.", 0
 ```
 
@@ -737,7 +734,7 @@ message db "Protected mode is active.", 0
 cell - the same "read a byte, stop at the null" pattern from Lesson 00 and
 Lesson 01, just aimed at video memory instead of `INT 10h` this time:
 
-```nasm
+```asm
 mov esi, message
 mov ebx, VIDEO_MEMORY
 
@@ -759,7 +756,7 @@ kernel - no extra arithmetic needed here, unlike the boot sector's
 
 ## 7. Complete 32-bit kernel
 
-```nasm
+```asm
 ; AOS Lesson 02 - 32-bit kernel
 
 [BITS 32]
@@ -909,7 +906,7 @@ the way, you now have a loader that:
 - Establishes flat 32-bit code, data, and stack segments.
 - Writes characters directly to VGA text memory without BIOS services.
 
-[Lesson 03 - Starting a C++ Kernel](../03-starting-a-cpp-kernel/index.md)
+[Lesson 03 - Starting a C++ Kernel](../03-starting-a-cpp-kernel/)
 swaps this hand-written kernel for a higher-level C++ one loaded by GRUB
 through the Multiboot specification - the assembly you just wrote will not go
 to waste, though. It is exactly the ground truth that higher-level bootloader

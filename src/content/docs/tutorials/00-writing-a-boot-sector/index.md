@@ -1,18 +1,19 @@
 ---
 title: Writing Your First Boot Sector
 description: Learn the foundations of PC architecture and x86 assembly, then build a 512-byte boot sector.
-status: new
+sidebar:
+  badge:
+    text: New
+    variant: success
 ---
 
-<div align="center">
+<div class="lesson-meta">
 
-<sub>AOS TUTORIALS · LESSON 00</sub>
+<div class="lesson-meta__eyebrow">AOS TUTORIALS · LESSON 00</div>
 
-<h1>Writing Your First Boot Sector</h1>
+<p class="lesson-meta__summary"><strong>From CPU, memory, and registers to your first bootable program</strong></p>
 
-<p><strong>From CPU, memory, and registers to your first bootable program</strong></p>
-
-<p>
+<p class="lesson-meta__topics">
   <kbd>PC architecture</kbd>
   <kbd>x86 basics</kbd>
   <kbd>NASM</kbd>
@@ -55,13 +56,15 @@ You will also produce:
 | `lesson-00.img` | 1,474,560 bytes | A floppy-disk image containing `boot.bin` |
 | Screen output | One line | `Peace be upon you!` |
 
-!!! note "Take your time"
+:::note[Take your time]
 
-    The program is short, but every line interacts directly with the machine.
-    Nothing here is padding for its own sake - understanding *why* each line is
-    necessary matters far more than memorizing what it does. If a section asks
-    you to slow down, it's because that is usually where the real
-    understanding lives.
+The program is short, but every line interacts directly with the machine.
+Nothing here is padding for its own sake - understanding *why* each line is
+necessary matters far more than memorizing what it does. If a section asks
+you to slow down, it's because that is usually where the real
+understanding lives.
+
+:::
 
 ## 1. The main parts of a PC
 
@@ -143,9 +146,7 @@ The CPU never touches them directly; it always goes through a controller
 built for that specific piece of hardware. In this lesson we let the BIOS
 deal with the display controller so we don't have to yet.
 
-<p align="center">
-  <img src="./assets/pc-architecture.svg" alt="A beginner-level PC architecture diagram: the BIOS copies a boot sector from storage to RAM, the CPU fetches its instructions from RAM, and the program uses a BIOS service to send characters to the display." width="100%">
-</p>
+![A beginner-level PC architecture diagram: the BIOS copies a boot sector from storage to RAM, the CPU fetches its instructions from RAM, and the program uses a BIOS service to send characters to the display.](./assets/pc-architecture.svg)
 
 The important path, the one this whole lesson is really about, is:
 
@@ -234,7 +235,7 @@ For our program:
 ```
 
 You do not need to explore every x86 addressing scheme yet - that story
-continues in [Lesson 02](../02-entering-protected-mode/index.md). For now,
+continues in [Lesson 02](../02-entering-protected-mode/). For now,
 remember only that we will use segment `0x07C0` as the base of the loaded boot
 sector, and labels inside it will be offsets measured from that base.
 
@@ -256,9 +257,7 @@ segment, and special-purpose - makes it easier to place the few we actually
 use in their proper context, instead of meeting them as an unexplained list of
 two-letter names.
 
-<p align="center">
-  <img src="./assets/register-map.svg" alt="The 8086 register family grouped into general-purpose data registers AX, BX, CX, DX; pointer and index registers SI, DI, BP, SP; segment registers CS, DS, ES, SS; and special-purpose registers IP and FLAGS. AX, BX, SI, SP, DS, ES, SS, IP, and FLAGS are highlighted as used in this lesson." width="100%">
-</p>
+![The 8086 register family grouped into general-purpose data registers AX, BX, CX, DX; pointer and index registers SI, DI, BP, SP; segment registers CS, DS, ES, SS; and special-purpose registers IP and FLAGS. AX, BX, SI, SP, DS, ES, SS, IP, and FLAGS are highlighted as used in this lesson.](./assets/register-map.svg)
 
 This lesson only touches a handful of these - the highlighted ones above. The
 rest, like `CX`/`DX` for counting and `DI`/`BP` for more advanced addressing,
@@ -314,9 +313,7 @@ it. `DS` and `SS`, on the other hand, are ours to initialize explicitly, which
 is exactly what Step 2 in Section 8 does before the program touches any data
 or the stack.
 
-<p align="center">
-  <img src="./assets/registers-and-memory.svg" alt="CS:IP locates the next instruction at EntryPoint, DS:SI locates the next message byte, and SS:SP locates the top of the stack, each pair pointing at a different region of RAM." width="100%">
-</p>
+![CS:IP locates the next instruction at EntryPoint, DS:SI locates the next message byte, and SS:SP locates the top of the stack, each pair pointing at a different region of RAM.](./assets/registers-and-memory.svg)
 
 ### Flags
 
@@ -353,7 +350,7 @@ actually hold in their head.
 
 For example:
 
-```nasm
+```asm
 mov ax, 0x07C0
 ```
 
@@ -391,12 +388,14 @@ name each one on sight:
 | `int number` | Request a software service; here, a BIOS routine |
 | `hlt` | Stop executing instructions until the CPU is awakened |
 
-!!! important
+:::caution[Important]
 
-    In NASM syntax the destination comes first. `mov ax, 5` copies `5` into
-    `AX`; it does not copy `AX` into the number `5`. Getting this backwards is
-    one of the most common first mistakes - if a program misbehaves, it's
-    worth double-checking the order on every `mov`.
+In NASM syntax the destination comes first. `mov ax, 5` copies `5` into
+`AX`; it does not copy `AX` into the number `5`. Getting this backwards is
+one of the most common first mistakes - if a program misbehaves, it's
+worth double-checking the order on every `mov`.
+
+:::
 
 ## 6. How the BIOS starts our program
 
@@ -408,9 +407,7 @@ After the PC is powered on, the BIOS:
 4. Checks for a recognizable signature in the final two bytes.
 5. Tells the CPU to begin executing the copied instructions.
 
-<p align="center">
-  <img src="./assets/bios-boot-flow.svg" alt="The BIOS reads the first disk sector into physical address 0x7C00, starts its instructions, and the boot-sector program requests a BIOS video service to print characters." width="100%">
-</p>
+![The BIOS reads the first disk sector into physical address 0x7C00, starts its instructions, and the boot-sector program requests a BIOS video service to print characters.](./assets/bios-boot-flow.svg)
 
 That first sector is called the **boot sector**, and it lives by different
 rules than the programs you may be used to: there is no operating system to
@@ -419,7 +416,7 @@ sector contains nothing but the bytes the BIOS and CPU actually need - not one
 more.
 
 The BIOS also leaves the number of the selected boot drive in register `DL`.
-We will save and use it in [Lesson 01](../01-loading-the-kernel/index.md).
+We will save and use it in [Lesson 01](../01-loading-the-kernel/).
 This first program does not read more data from disk, so it does not need
 that number yet - but it's worth remembering it's already sitting there,
 waiting.
@@ -429,9 +426,7 @@ waiting.
 A BIOS boot sector is exactly 512 bytes - not one byte more, as we'll see
 later, and the BIOS is strict about this.
 
-<p align="center">
-  <img src="./assets/boot-sector-layout.svg" alt="A 512-byte boot sector containing code and data, zero padding through byte 509, and signature bytes 55 AA at offsets 510 and 511." width="100%">
-</p>
+![A 512-byte boot sector containing code and data, zero padding through byte 509, and signature bytes 55 AA at offsets 510 and 511.](./assets/boot-sector-layout.svg)
 
 | Region | Contents |
 |---|---|
@@ -441,7 +436,7 @@ later, and the BIOS is strict about this.
 
 NASM writes the signature with:
 
-```nasm
+```asm
 dw 0xAA55
 ```
 
@@ -452,7 +447,7 @@ exact pattern the BIOS scans for before it trusts a sector enough to run it.
 The instruction below inserts exactly enough zero bytes to place the
 signature at offset 510, however much code comes before it:
 
-```nasm
+```asm
 times 510 - ($ - $$) db 0
 ```
 
@@ -474,7 +469,7 @@ single line as magic.
 
 ### Step 1: tell NASM what we are producing
 
-```nasm
+```asm
 [BITS 16]
 [ORG 0]
 ```
@@ -491,7 +486,7 @@ The BIOS handed control to our code, but it makes no promises about what the
 data and stack registers happen to contain at that moment - so the first job
 is to stop assuming and start setting things explicitly.
 
-```nasm
+```asm
 EntryPoint:
     cli
 
@@ -533,7 +528,7 @@ works.
 
 ### Step 3: store the message
 
-```nasm
+```asm
 bootMsg db "Peace be upon you!", 13, 10, 0
 ```
 
@@ -549,7 +544,7 @@ will learn to recognize in Step 5.
 
 ### Step 4: point to the first character
 
-```nasm
+```asm
 mov si, bootMsg
 call ShowMsg
 ```
@@ -576,7 +571,7 @@ memory, and `bootMsg` names the address of the very first one.
 
 Here is a shorter example to see the shape clearly:
 
-```nasm
+```asm
 message db "Hi", 0
 ```
 
@@ -596,14 +591,14 @@ certainly not text, and almost certainly not what you want on screen.
 
 Our complete message works the same way:
 
-```nasm
+```asm
 bootMsg db "Peace be upon you!", 13, 10, 0
 ```
 
 It contains the text bytes, the carriage-return and line-feed bytes, and
 finally the zero terminator that closes it off.
 
-```nasm
+```asm
 ShowMsg:
     push ax
     push bx
@@ -660,7 +655,7 @@ register at a time:
 
 ### Step 6: stop after returning
 
-```nasm
+```asm
 .hang:
     cli
     hlt
@@ -679,7 +674,7 @@ whatever padding bytes come next.
 The ideas above form the complete `lesson 00/src/boot.s` program - every line
 below should now read as something you've already met, not something new.
 
-```nasm
+```asm
 ; AOS Lesson 00 - Writing your first boot sector
 
 [BITS 16]
@@ -820,6 +815,57 @@ The result is:
 lesson 00/build/lesson-00.img
 ```
 
+### Run it in your browser
+
+This is the exact floppy image produced by the lesson's source and Makefile,
+booted in an x86 PC emulator inside this page. The emulator only starts when
+you ask it to, and everything runs locally in your browser.
+
+<div class="aos-playground" data-v86-playground="lesson-00">
+  <div class="aos-playground__header">
+    <div>
+      <span class="aos-playground__eyebrow">AOS browser lab</span>
+      <h4 class="aos-playground__title">Lesson 00 · Boot sector</h4>
+      <p class="aos-playground__description">SeaBIOS will boot <code>lesson-00.img</code> as a 1.44 MiB floppy disk.</p>
+    </div>
+    <div class="aos-playground__status" data-v86-status data-state="idle" role="status" aria-live="polite">
+      <span class="aos-playground__status-dot" aria-hidden="true"></span>
+      <span data-v86-status-text>Ready to start</span>
+    </div>
+  </div>
+
+  <div class="aos-playground__controls" aria-label="Emulator controls">
+    <button class="aos-playground__button aos-playground__button--primary" type="button" data-v86-action="start">
+      Start emulator
+    </button>
+    <button class="aos-playground__button" type="button" data-v86-action="pause" disabled>
+      Pause
+    </button>
+    <button class="aos-playground__button" type="button" data-v86-action="reset" disabled>
+      Reset
+    </button>
+  </div>
+
+  <div class="aos-playground__display">
+    <div class="aos-playground__placeholder" data-v86-placeholder>
+      <strong>PC powered off</strong>
+      <span>Press Start emulator to boot the lesson image.</span>
+    </div>
+    <div class="aos-playground__screen" data-v86-screen aria-label="Emulated PC display">
+      <div class="aos-playground__text-screen"></div>
+      <canvas class="aos-playground__canvas"></canvas>
+    </div>
+  </div>
+
+  <div class="aos-playground__footer">
+    <span>The first start downloads the emulator runtime, BIOS, and floppy image.</span>
+    <details class="aos-playground__error" data-v86-error hidden>
+      <summary>Technical details</summary>
+      <pre data-v86-error-text></pre>
+    </details>
+  </div>
+</div>
+
 If `qemu-system-i386` is installed, start the virtual PC with:
 
 ```sh
@@ -877,7 +923,7 @@ stack, call a subroutine, loop over a string, and communicate with the
 screen. None of that was given to you by an operating system - you built it,
 line by line, on bare hardware.
 
-[Lesson 01 - Loading the Kernel from a Floppy Disk](../01-loading-the-kernel/index.md)
+[Lesson 01 - Loading the Kernel from a Floppy Disk](../01-loading-the-kernel/)
 builds on those foundations. It uses a BIOS disk service to copy a second
 program from storage into memory, then transfers control to that program -
 the first step toward a kernel that no longer fits in 512 bytes.
