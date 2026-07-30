@@ -1,0 +1,13 @@
+v86 browser emulator
+====================
+
+Version: 0.5.424+g2f1346b
+Source: https://github.com/copy/v86
+Package: https://www.npmjs.com/package/v86/v/0.5.424
+
+libv86.mjs, v86.wasm, and v86-fallback.wasm are distributed under the
+BSD 2-Clause License. See LICENSE.v86.txt.
+
+seabios.bin and vgabios.bin were taken from copy/v86 commit
+2f1346b0e7d88d4cbbbcc05fe15b4e369c3de23f. The BIOS directory includes the
+GNU Lesser General Public License notice reproduced in LICENSE.bios.txt.

@@ -1,18 +1,19 @@
 ---
 title: Loading the Kernel from a Floppy Disk
 description: Build a 16-bit x86 boot sector that loads and starts a tiny kernel from a floppy disk.
-status: new
+sidebar:
+  badge:
+    text: New
+    variant: success
 ---
 
-<div align="center">
+<div class="lesson-meta">
 
-<sub>AOS TUTORIALS · LESSON 01</sub>
+<div class="lesson-meta__eyebrow">AOS TUTORIALS · LESSON 01</div>
 
-<h1>Loading the Kernel from a Floppy Disk</h1>
+<p class="lesson-meta__summary"><strong>Read a second program from disk, then hand it the machine</strong></p>
 
-<p><strong>Read a second program from disk, then hand it the machine</strong></p>
-
-<p>
+<p class="lesson-meta__topics">
   <kbd>16-bit x86</kbd>
   <kbd>BIOS</kbd>
   <kbd>NASM</kbd>
@@ -32,7 +33,7 @@ together instead of one working alone:
 | 2 | Kernel | `0x0100:0x0000` (physical `0x1000`) | Print a message to the screen |
 
 This lesson continues
-[Lesson 00 - Writing Your First Boot Sector](../00-writing-a-boot-sector/index.md),
+[Lesson 00 - Writing Your First Boot Sector](../00-writing-a-boot-sector/),
 which stopped right after printing a message from a boot sector and then
 halting - a real result, but a dead end. Every boot sector is capped at 512
 bytes, and a real operating system needs far more room than that. So here we
@@ -44,9 +45,7 @@ stack, assembly syntax, and the BIOS boot process that all of this rests on.
 Keep it nearby if any of those ideas still feel new - this lesson leans on
 every one of them.
 
-<p align="center">
-  <img src="./assets/boot-flow.svg" alt="Boot flow: BIOS loads the boot sector, the boot sector reads the kernel, then execution jumps to the kernel." width="100%">
-</p>
+![Boot flow: BIOS loads the boot sector, the boot sector reads the kernel, then execution jumps to the kernel.](./assets/boot-flow.svg)
 
 ## 1. Starting point
 
@@ -57,7 +56,7 @@ worked, but it never left its own 512 bytes.
 <details markdown="1">
 <summary><strong>Show the previous lesson's boot-sector program</strong></summary>
 
-```nasm
+```asm
 [BITS 16]
 [ORG 0]
 
@@ -144,9 +143,7 @@ one another, like a tower of vinyl records sharing a single spindle. Tracks
 sitting at the same radius on every surface, stacked directly above each
 other, form a **cylinder**.
 
-<p align="center">
-  <img src="./assets/disk-geometry.svg" alt="A disk surface divided into tracks and sectors, beside stacked platter surfaces forming a cylinder." width="100%">
-</p>
+![A disk surface divided into tracks and sectors, beside stacked platter surfaces forming a cylinder.](./assets/disk-geometry.svg)
 
 ### CHS addressing
 
@@ -165,11 +162,13 @@ the sequence begins with sector 1 on head 0 of cylinder 0. After the last
 sector on that track, it continues on head 1 of the same cylinder, then moves
 to cylinder 1.
 
-!!! important
+:::caution[Important]
 
-    Sector numbers begin at **1**. Cylinder and head numbers begin at **0**.
-    This asymmetry trips up almost everyone the first time - there is no
-    "sector 0."
+Sector numbers begin at **1**. Cylinder and head numbers begin at **0**.
+This asymmetry trips up almost everyone the first time - there is no
+"sector 0."
+
+:::
 
 ## 3. Reading sectors with BIOS INT 13h
 
@@ -237,7 +236,7 @@ place entirely.
 
 The completed boot sector:
 
-```nasm
+```asm
 ; boot.s
 [BITS 16]
 [ORG 0]
@@ -350,7 +349,7 @@ sector did, prints a message with the same BIOS video service, and then stops
 in an infinite loop - the same shape as Lesson 00's program, just now living
 somewhere else in memory.
 
-```nasm
+```asm
 ; kernel.s
 [BITS 16]
 [ORG 0]
@@ -411,7 +410,7 @@ asking much more of it.
 Because both programs use `ShowMsg`, you can move it to a shared include
 file:
 
-```nasm
+```asm
 %include "showmsg.inc"
 ```
 
@@ -451,10 +450,12 @@ The resulting `aos.img` is 1,024 bytes. It contains the boot sector followed
 immediately by the kernel sector and can be attached as a raw floppy image in
 an x86 emulator such as Bochs.
 
-!!! warning
+:::caution[Warning]
 
-    The next command writes directly to a device. Confirm the device name
-    before running it. Selecting the wrong target can destroy data.
+The next command writes directly to a device. Confirm the device name
+before running it. Selecting the wrong target can destroy data.
+
+:::
 
 To write the image to floppy drive A on a Unix-like system:
 
@@ -494,7 +495,7 @@ willing to load automatically. Anything the boot sector can read from disk,
 it can now hand control to - a larger kernel, a different program, or, in the
 next lesson, a completely different CPU mode.
 
-[Lesson 02 - Entering 32-bit Protected Mode](../02-entering-protected-mode/index.md)
+[Lesson 02 - Entering 32-bit Protected Mode](../02-entering-protected-mode/)
 builds the required descriptor table, changes the processor's operating
 mode, and writes directly to VGA text memory from a 32-bit kernel.
 </content>

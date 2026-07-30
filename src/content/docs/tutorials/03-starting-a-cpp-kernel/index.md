@@ -1,18 +1,19 @@
 ---
 title: Starting a C++ Kernel
 description: Hand the boot process to GRUB through the Multiboot specification, and bring up a small C++ kernel with its own GDT and screen-printing class.
-status: new
+sidebar:
+  badge:
+    text: New
+    variant: success
 ---
 
-<div align="center">
+<div class="lesson-meta">
 
-<sub>AOS TUTORIALS · LESSON 03</sub>
+<div class="lesson-meta__eyebrow">AOS TUTORIALS · LESSON 03</div>
 
-<h1>Starting a C++ Kernel</h1>
+<p class="lesson-meta__summary"><strong>Stop writing your own bootloader, and start writing your kernel in C++</strong></p>
 
-<p><strong>Stop writing your own bootloader, and start writing your kernel in C++</strong></p>
-
-<p>
+<p class="lesson-meta__topics">
   <kbd>C++</kbd>
   <kbd>GRUB</kbd>
   <kbd>Multiboot</kbd>
@@ -23,7 +24,7 @@ status: new
 
 ## What you will build
 
-[Lesson 02](../02-entering-protected-mode/index.md) ended with a real
+[Lesson 02](../02-entering-protected-mode/) ended with a real
 milestone: a boot sector that built its own GDT, switched the CPU into 32-bit
 protected mode by hand, and jumped into a kernel that wrote
 `Protected mode is active.` straight into VGA memory. Every single step of
@@ -51,16 +52,16 @@ Concretely, you will produce a `kernel.elf` made of four source files:
 | `gdt.cpp` | Build our own GDT in C++, replacing GRUB's temporary one |
 | `main.cpp` | `kmain`, the C++ entry point that ties everything together |
 
-<p align="center">
-  <img src="./assets/build-pipeline.svg" alt="NASM assembles multiboot.s and g++ compiles main.cpp, video.cpp, and gdt.cpp into object files. The linker combines them with link.lds into kernel.tmp, objcopy converts it to plain ELF32, and the result, kernel.elf, is handed to GRUB." width="100%">
-</p>
+![NASM assembles multiboot.s and g++ compiles main.cpp, video.cpp, and gdt.cpp into object files. The linker combines them with link.lds into kernel.tmp, objcopy converts it to plain ELF32, and the result, kernel.elf, is handed to GRUB.](./assets/build-pipeline.svg)
 
-!!! note "You are not getting a full C++ runtime"
+:::note[You are not getting a full C++ runtime]
 
-    Without an operating system underneath, most of what makes C++
-    comfortable - `new`/`delete`, exceptions, `dynamic_cast` - has nothing to
-    run on top of. Section 6 draws the line precisely: what we can use today,
-    and what has to wait for a kernel that provides its own runtime support.
+Without an operating system underneath, most of what makes C++
+comfortable - `new`/`delete`, exceptions, `dynamic_cast` - has nothing to
+run on top of. Section 6 draws the line precisely: what we can use today,
+and what has to wait for a kernel that provides its own runtime support.
+
+:::
 
 ## 1. Why hand the boot process to GRUB?
 
@@ -116,13 +117,15 @@ Of the flags bits, three matter here:
 - **Bit 16** - the header itself supplies the four address fields above,
   instead of GRUB reading them from the file's own ELF headers.
 
-!!! important
+:::caution[Important]
 
-    Our kernel sets only bits 0 and 1. Because bit 16 is off, GRUB reads the
-    load addresses from the ELF program headers our linker already produces
-    - the address fields our header still emits are simply ignored. This is
-    exactly why Section 5's header looks eight fields wide even though only
-    three of them do anything.
+Our kernel sets only bits 0 and 1. Because bit 16 is off, GRUB reads the
+load addresses from the ELF program headers our linker already produces
+- the address fields our header still emits are simply ignored. This is
+exactly why Section 5's header looks eight fields wide even though only
+three of them do anything.
+
+:::
 
 Once GRUB has loaded the kernel and validated its header, it fills in a
 second structure, `multiboot_info`, describing what it found - available
@@ -145,9 +148,7 @@ extended memory, both in kilobytes); bit 1 set means `boot_device` identifies
 which drive GRUB booted from. This is the same structure Section 11's
 `kmain` reads to print what GRUB discovered about the machine.
 
-<p align="center">
-  <img src="./assets/multiboot-handoff.svg" alt="In Lesson 02, the boot sector built its own GDT and set CR0.PE itself. In Lesson 03, GRUB reads the Multiboot header, loads kernel.elf, builds a temporary GDT, enters protected mode on its own, and jumps to the kernel entry point with EAX holding the magic number and EBX holding a pointer to the multiboot_info structure." width="100%">
-</p>
+![In Lesson 02, the boot sector built its own GDT and set CR0.PE itself. In Lesson 03, GRUB reads the Multiboot header, loads kernel.elf, builds a temporary GDT, enters protected mode on its own, and jumps to the kernel entry point with EAX holding the magic number and EBX holding a pointer to the multiboot_info structure.](./assets/multiboot-handoff.svg)
 
 ## 3. From source files to a linked image
 
@@ -300,7 +301,7 @@ With the linker script defining `code`, `bss`, and `end`, we can finally
 write the file that ties the header to those addresses and hands control to
 our C++ code:
 
-```nasm
+```asm
 %define MULTIBOOT_HEADER_MAGIC 0x1BADB002        ; magic header
 %define MULTIBOOT_HEADER_FLAGS 0x00010003
                   ;; flags:
@@ -358,15 +359,17 @@ stack:
 
 A few details are worth slowing down for:
 
-!!! note "Why `entry` immediately jumps to `start`"
+:::note[Why `entry` immediately jumps to `start`]
 
-    `ENTRY(entry)` in the linker script means GRUB's own loader jumps straight
-    to the `entry` label - but the 32 bytes of `multiboot_header` sit
-    *physically right after it* in the file, and those bytes are data, not
-    instructions. `jmp start` exists purely to hop clean over that header and
-    land on the real first instruction. It is the same trick DOS boot sectors
-    and other embedded-header formats have used for decades: put a jump at
-    the very front, then whatever metadata you like, then the actual code.
+`ENTRY(entry)` in the linker script means GRUB's own loader jumps straight
+to the `entry` label - but the 32 bytes of `multiboot_header` sit
+*physically right after it* in the file, and those bytes are data, not
+instructions. `jmp start` exists purely to hop clean over that header and
+land on the real first instruction. It is the same trick DOS boot sectors
+and other embedded-header formats have used for decades: put a jump at
+the very front, then whatever metadata you like, then the actual code.
+
+:::
 
 - `EXTERN code, bss, end` pulls in the three symbols the linker script
   captured from the location counter, so `multiboot_header` can embed their
@@ -406,13 +409,15 @@ Everything below only relies on the last row of that table: classes,
 inheritance, and objects that live on the stack or as members of other
 objects - exactly what `Video` in Section 9 and `GDTEntry` in Section 10 need.
 
-!!! note "Two small compiler stubs"
+:::note[Two small compiler stubs]
 
-    `main.cpp` also defines two empty functions, `__main()` and `_alloca()`.
-    Some C++ toolchains (Cygwin's among them) emit calls to these as part of
-    their normal startup sequence; without an implementation, the linker
-    would refuse to finish. Empty bodies are enough - we simply are not using
-    the features that would make them do real work.
+`main.cpp` also defines two empty functions, `__main()` and `_alloca()`.
+Some C++ toolchains (Cygwin's among them) emit calls to these as part of
+their normal startup sequence; without an implementation, the linker
+would refuse to finish. Empty bodies are enough - we simply are not using
+the features that would make them do real work.
+
+:::
 
 ## 7. Low-level helpers: system.h
 
@@ -1085,16 +1090,18 @@ multiboot.o: multiboot.s
 A couple of lines are toolchain-specific rather than universal, and worth
 flagging before you hit them as confusing errors:
 
-!!! warning "Two lines you may need to adjust"
+:::caution[Two lines you may need to adjust]
 
-    - `objcopy -O elf32-i386 kernel.tmp kernel.elf` exists because some
-      linkers (Cygwin's among them) cannot emit a plain ELF32 image
-      directly. On a Linux toolchain, `ld -T link.lds $(OBJS) -o kernel.elf`
-      alone is enough - skip the `objcopy` step entirely.
-    - `-DLEADING_USCORE` must match whatever your C++ compiler actually does
-      to symbol names. Get it wrong, and linking fails with
-      `undefined reference to 'kmain'` - the assembler and compiler will
-      have generated two different names for the same function.
+- `objcopy -O elf32-i386 kernel.tmp kernel.elf` exists because some
+  linkers (Cygwin's among them) cannot emit a plain ELF32 image
+  directly. On a Linux toolchain, `ld -T link.lds $(OBJS) -o kernel.elf`
+  alone is enough - skip the `objcopy` step entirely.
+- `-DLEADING_USCORE` must match whatever your C++ compiler actually does
+  to symbol names. Get it wrong, and linking fails with
+  `undefined reference to 'kmain'` - the assembler and compiler will
+  have generated two different names for the same function.
+
+:::
 
 Build it:
 
