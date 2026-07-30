@@ -1,0 +1,25 @@
+{
+  "playgrounds": [
+    {
+      "id": "lesson-00",
+      "sourceDirectory": "lesson 00",
+      "image": "build/lesson-00.img",
+      "page": "tutorials/00-writing-a-boot-sector/",
+      "expectedOutput": "Peace be upon you!"
+    },
+    {
+      "id": "lesson-01",
+      "sourceDirectory": "lesson 01",
+      "image": "build/lesson-01.img",
+      "page": "tutorials/01-loading-the-kernel/",
+      "expectedOutput": "Kernel loaded."
+    },
+    {
+      "id": "lesson-02",
+      "sourceDirectory": "lesson 02",
+      "image": "build/lesson-02.img",
+      "page": "tutorials/02-entering-protected-mode/",
+      "expectedOutput": "Protected mode is active."
+    }
+  ]
+}

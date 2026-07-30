@@ -41,6 +41,8 @@ dist/
 .astro/
 node_modules/
 .playwright-cli/
+playwright-report/
+test-results/
 
 # Lesson build output
 lesson 00/build/

@@ -35,18 +35,16 @@ pnpm run preview
 
 ## Playground commands
 
-After changing a lesson's assembly source, rebuild its floppy image and copy it
-into the documentation site:
-
-```sh
-pnpm run playground:lesson-00
-pnpm run playground:lesson-01
-```
-
-Refresh every browser playground:
+After changing lesson assembly, rebuild every registered playground image:
 
 ```sh
 pnpm run playground:build
+```
+
+To rebuild only one lesson, pass its playground ID:
+
+```sh
+pnpm run playground:build -- lesson-01
 ```
 
 Run the complete local check:
@@ -57,6 +55,13 @@ pnpm test
 
 This refreshes every playground image and performs the same Starlight build
 used by GitHub Pages.
+
+Install Chromium once, then run the browser smoke tests:
+
+```sh
+pnpm exec playwright install chromium
+pnpm run test:e2e
+```
 
 ## Add a browser playground
 
@@ -76,3 +81,6 @@ The shared script upgrades the Markdown-safe `<div>` to an
 `<aos-v86-playground>` custom element. By default, `lesson="lesson-00"` loads
 `lesson-00.img`. Use the optional `image`, `description`, or `memory-mib`
 attributes when a lesson needs different settings.
+
+Register each playground in `playgrounds.json`. The same manifest drives image
+building and the browser smoke tests.
