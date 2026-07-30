@@ -450,6 +450,19 @@ The resulting `aos.img` is 1,024 bytes. It contains the boot sector followed
 immediately by the kernel sector and can be attached as a raw floppy image in
 an x86 emulator such as Bochs.
 
+### Run it in your browser
+
+The playground uses the same two assembled sectors, padded to a standard
+1.44 MiB floppy image. Reaching `Kernel loaded.` proves that the boot sector
+read sector 2 and transferred control to the kernel.
+
+<div
+  data-aos-v86-playground
+  lesson="lesson-01"
+  title="Lesson 01 · Load the kernel"
+  expected-output="Kernel loaded."
+></div>
+
 :::caution[Warning]
 
 The next command writes directly to a device. Confirm the device name

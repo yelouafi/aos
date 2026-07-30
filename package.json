@@ -11,7 +11,9 @@
     "build": "astro build",
     "preview": "astro preview --host 127.0.0.1",
     "playground:lesson-00": "make -C \"lesson 00\" image inspect && cp \"lesson 00/build/lesson-00.img\" public/assets/playground/lesson-00.img",
-    "test": "pnpm run playground:lesson-00 && pnpm run build"
+    "playground:lesson-01": "make -C \"lesson 01\" image inspect && cp \"lesson 01/build/lesson-01.img\" public/assets/playground/lesson-01.img",
+    "playground:build": "pnpm run playground:lesson-00 && pnpm run playground:lesson-01",
+    "test": "pnpm run playground:build && pnpm run build"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.41.5",

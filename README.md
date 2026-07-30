@@ -35,11 +35,18 @@ pnpm run preview
 
 ## Playground commands
 
-After changing the Lesson 00 boot-sector source, rebuild its floppy image and
-copy it into the documentation site:
+After changing a lesson's assembly source, rebuild its floppy image and copy it
+into the documentation site:
 
 ```sh
 pnpm run playground:lesson-00
+pnpm run playground:lesson-01
+```
+
+Refresh every browser playground:
+
+```sh
+pnpm run playground:build
 ```
 
 Run the complete local check:
@@ -48,8 +55,8 @@ Run the complete local check:
 pnpm test
 ```
 
-This refreshes the Lesson 00 playground image and performs the same Starlight
-build used by GitHub Pages.
+This refreshes every playground image and performs the same Starlight build
+used by GitHub Pages.
 
 ## Add a browser playground
 
