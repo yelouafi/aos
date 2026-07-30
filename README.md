@@ -35,7 +35,7 @@ pnpm run preview
 
 ## Playground commands
 
-After changing lesson assembly, rebuild every registered playground image:
+After changing lesson source, rebuild every registered playground artifact:
 
 ```sh
 pnpm run playground:build
@@ -53,7 +53,7 @@ Run the complete local check:
 pnpm test
 ```
 
-This refreshes every playground image and performs the same Starlight build
+This refreshes every playground artifact and performs the same Starlight build
 used by GitHub Pages.
 
 Install Chromium once, then run the browser smoke tests:
@@ -65,8 +65,9 @@ pnpm run test:e2e
 
 ## Add a browser playground
 
-Place a bootable image in `public/assets/playground/`, then add the reusable
-playground host to any tutorial Markdown file:
+Place a bootable floppy image or Multiboot ELF in
+`public/assets/playground/`, then add the reusable playground host to any
+tutorial Markdown file:
 
 ```html
 <div
@@ -78,9 +79,10 @@ playground host to any tutorial Markdown file:
 ```
 
 The shared script upgrades the Markdown-safe `<div>` to an
-`<aos-v86-playground>` custom element. By default, `lesson="lesson-00"` loads
-`lesson-00.img`. Use the optional `image`, `description`, or `memory-mib`
-attributes when a lesson needs different settings.
+`<aos-v86-playground>` custom element. Floppy images are the default. Set
+`media="multiboot"` and `artifact="lesson-03.elf"` for a directly loaded
+Multiboot kernel. The optional `description` and `memory-mib` attributes adjust
+the presentation and virtual machine.
 
-Register each playground in `playgrounds.json`. The same manifest drives image
-building and the browser smoke tests.
+Register each playground in `playgrounds.json`. The same manifest drives
+artifact building and the browser smoke tests.

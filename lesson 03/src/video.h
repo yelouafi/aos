@@ -43,7 +43,7 @@ public:
 	
   // scrolls the screen by the given vertical amount
   // y The numbers of lines to scroll
-  void scroll(int y);
+  void scroll(int lines);
 	
   // sets the attribute for the next writes
   // att The character's attribute

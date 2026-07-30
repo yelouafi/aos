@@ -130,17 +130,17 @@ void Video::updateCursor()
 }
 
 
-void Video::scroll(int y)
+void Video::scroll(int lines)
 {
   // scroll up
-  memcpy(mem, mem + (y * width * 2), (height - y) * width * 2);
-  
+  memcpy(mem, mem + (lines * width * 2), (height - lines) * width * 2);
+
   // blank the bottom lines of the screen
   for (int x=0; x< (width*2); x+=2)
   {
-    for (int y=(height - y)*2; y<(height*2); y+=2)
+    for (int row=(height - lines)*2; row<(height*2); row+=2)
     {
-      int loc = x + (y * width);
+      int loc = x + (row * width);
       mem[loc] = ' ';
       mem[loc+1 ] = _attribute;
     }

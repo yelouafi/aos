@@ -7,7 +7,7 @@
   }
 
   var runtimeBase = new URL("../assets/vendor/v86/", loaderUrl);
-  var imageBase = new URL("../assets/playground/", loaderUrl);
+  var artifactBase = new URL("../assets/playground/", loaderUrl);
   var v86Module;
 
   function assetUrl(base, path) {
@@ -58,9 +58,18 @@
         throw new Error("memory-mib must be a positive number.");
       }
 
+      var media = this.getAttribute("media") || "floppy";
+      if (media !== "floppy" && media !== "multiboot") {
+        throw new Error('media must be either "floppy" or "multiboot".');
+      }
+
       return {
         lesson: lesson,
-        image: this.getAttribute("image") || lesson + ".img",
+        media: media,
+        artifact:
+          this.getAttribute("artifact") ||
+          this.getAttribute("image") ||
+          lesson + (media === "multiboot" ? ".elf" : ".img"),
         title: this.getAttribute("title") || lesson,
         expectedOutput: this.getAttribute("expected-output") || "",
         description: this.getAttribute("description") || "",
@@ -90,7 +99,7 @@
         '<div class="aos-playground__display">',
         '  <div class="aos-playground__placeholder" data-v86-placeholder>',
         "    <strong>PC powered off</strong>",
-        "    <span>Press Start emulator to boot the lesson image.</span>",
+        "    <span>Press Start emulator to boot the lesson artifact.</span>",
         "  </div>",
         '  <div class="aos-playground__screen" data-v86-screen>',
         '    <div class="aos-playground__text-screen"></div>',
@@ -98,7 +107,7 @@
         "  </div>",
         "</div>",
         '<div class="aos-playground__footer">',
-        "  <span>The first start downloads the emulator runtime, BIOS, and floppy image.</span>",
+        "  <span>The first start downloads the emulator runtime, BIOS, and lesson artifact.</span>",
         '  <details class="aos-playground__error" data-v86-error hidden>',
         "    <summary>Technical details</summary>",
         "    <pre data-v86-error-text></pre>",
@@ -111,10 +120,15 @@
       var description = this.querySelector("[data-v86-description]");
       if (this._config.description) {
         description.textContent = this._config.description;
+      } else if (this._config.media === "multiboot") {
+        description.append("v86 will load ");
+        var kernelName = document.createElement("code");
+        kernelName.textContent = this._config.artifact;
+        description.append(kernelName, " through its Multiboot interface.");
       } else {
         description.append("SeaBIOS will boot ");
         var imageName = document.createElement("code");
-        imageName.textContent = this._config.image;
+        imageName.textContent = this._config.artifact;
         description.append(imageName, " as a 1.44 MiB floppy disk.");
       }
 
@@ -185,7 +199,12 @@
       }
 
       var currentCheck = ++this._bootCheck;
-      this.setStatus("booting", "Booting floppy…");
+      this.setStatus(
+        "booting",
+        this._config.media === "multiboot"
+          ? "Starting kernel…"
+          : "Booting floppy…"
+      );
 
       try {
         var found = await this._emulator.wait_until_vga_screen_contains(
@@ -216,7 +235,7 @@
       this._placeholder.querySelector("strong").textContent =
         "Starting virtual PC";
       this._placeholder.querySelector("span").textContent =
-        "Loading the emulator and lesson image…";
+        "Loading the emulator and lesson artifact…";
       this.setStatus("loading", "Loading assets…");
 
       try {
@@ -227,7 +246,7 @@
 
         var module = await loadV86();
 
-        this._emulator = new module.V86({
+        var emulatorOptions = {
           wasm_path: assetUrl(runtimeBase, "v86.wasm"),
           memory_size: this._config.memorySize,
           vga_memory_size: 2 * 1024 * 1024,
@@ -238,14 +257,19 @@
           vga_bios: {
             url: assetUrl(runtimeBase, "vgabios.bin"),
           },
-          fda: {
-            url: assetUrl(imageBase, this._config.image),
-          },
           boot_order: 0x231,
           disable_mouse: true,
           disable_speaker: true,
           autostart: true,
-        });
+        };
+
+        emulatorOptions[
+          this._config.media === "multiboot" ? "multiboot" : "fda"
+        ] = {
+          url: assetUrl(artifactBase, this._config.artifact),
+        };
+
+        this._emulator = new module.V86(emulatorOptions);
 
         this._emulator.add_listener("emulator-ready", () => {
           this._placeholder.hidden = true;

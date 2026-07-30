@@ -43,27 +43,30 @@ for (const playground of selectedPlaygrounds) {
   await run("make", [
     "-C",
     playground.sourceDirectory,
-    "image",
+    playground.buildTarget,
     "inspect",
   ]);
 
-  const sourceImage = resolve(
+  const sourceArtifact = resolve(
     repositoryRoot,
     playground.sourceDirectory,
-    playground.image
+    playground.artifact
   );
-  const destinationImage = resolve(
-    destinationDirectory,
-    `${playground.id}.img`
-  );
+  const destinationArtifact = resolve(destinationDirectory, playground.asset);
 
-  await mkdir(dirname(destinationImage), { recursive: true });
-  await copyFile(sourceImage, destinationImage);
-  console.log(`Copied ${playground.id}.img into the documentation site.`);
+  await mkdir(dirname(destinationArtifact), { recursive: true });
+  await copyFile(sourceArtifact, destinationArtifact);
+  console.log(`Copied ${playground.asset} into the documentation site.`);
 }
 
 function validatePlayground(playground) {
-  for (const field of ["id", "sourceDirectory", "image"]) {
+  for (const field of [
+    "id",
+    "sourceDirectory",
+    "buildTarget",
+    "artifact",
+    "asset",
+  ]) {
     if (
       typeof playground[field] !== "string" ||
       playground[field].length === 0
