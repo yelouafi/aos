@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 620" width="1120" height="620" role="img" aria-labelledby="pic-remap-title pic-remap-desc">
+  <title id="pic-remap-title">Why the 8259 PIC has to be remapped before use</title>
+  <desc id="pic-remap-desc">By default the master 8259 PIC delivers IRQ0 through IRQ7 as interrupt vectors 8 through 15, and the slave PIC delivers IRQ8 through IRQ15 as vectors 112 through 119 on some BIOSes, both of which collide with CPU exception vectors 8 through 15 such as Double Fault and General Protection Fault. initPIC() reprograms both controllers with ICW2 so the master uses vectors 32 to 39 and the slave uses vectors 40 to 47, safely past the 32 reserved exception vectors. The slave's output feeds into the master's IRQ2 line, which is why IRQ2 is never used directly.</desc>
+
+  <rect width="1120" height="620" fill="#ffffff"/>
+  <text x="560" y="42" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" font-weight="700" fill="#0f172a">Remapping the 8259 PIC past the exception vectors</text>
+
+  <!-- left: before -->
+  <text x="270" y="80" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#b91c1c">Before initPIC() — BIOS defaults</text>
+  <rect x="60" y="100" width="420" height="230" rx="12" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="270" y="126" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#991b1b">Master PIC → vectors 8-15</text>
+  <text x="270" y="148" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#7f1d1d">IRQ0 (timer)  → vector 8</text>
+  <text x="270" y="168" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#7f1d1d">IRQ1 (keyboard) → vector 9</text>
+  <text x="270" y="188" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#7f1d1d">... IRQ7 → vector 15</text>
+  <line x1="90" y1="202" x2="450" y2="202" stroke="#fca5a5" stroke-width="1"/>
+  <text x="270" y="224" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#991b1b">CPU exceptions also use 8-15</text>
+  <text x="270" y="246" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#7f1d1d">8 = Double Fault</text>
+  <text x="270" y="266" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#7f1d1d">13 = General Protection Fault</text>
+  <text x="270" y="286" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#7f1d1d">14 = Page Fault</text>
+  <text x="270" y="312" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#b91c1c">A timer tick and a Double Fault would look identical.</text>
+
+  <!-- right: after -->
+  <text x="850" y="80" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#166534">After initPIC() — remapped</text>
+  <rect x="640" y="100" width="420" height="230" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="850" y="126" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#166534">Master PIC → vectors 32-39</text>
+  <text x="850" y="148" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#15803d">IRQ0 (timer)  → vector 32</text>
+  <text x="850" y="168" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#15803d">IRQ1 (keyboard) → vector 33</text>
+  <text x="850" y="188" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#15803d">... IRQ7 → vector 39</text>
+  <line x1="670" y1="202" x2="1030" y2="202" stroke="#86efac" stroke-width="1"/>
+  <text x="850" y="224" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#166534">Slave PIC → vectors 40-47</text>
+  <text x="850" y="246" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#15803d">IRQ8 (RTC) → vector 40</text>
+  <text x="850" y="266" text-anchor="middle" font-family="ui-monospace, monospace" font-size="13" fill="#15803d">... IRQ15 → vector 47</text>
+  <text x="850" y="300" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#166534">32 through 47 — clear of every reserved exception.</text>
+
+  <line x1="560" y1="100" x2="560" y2="330" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+
+  <!-- cascade wiring -->
+  <text x="560" y="378" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#0f172a">How the two controllers are wired together</text>
+
+  <rect x="150" y="404" width="300" height="80" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="300" y="430" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#0f172a">Master PIC (0x20/0x21)</text>
+  <text x="300" y="452" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#475569">IRQ0, IRQ1, IRQ3-7 direct</text>
+  <text x="300" y="470" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#475569">IRQ2 reserved for the slave</text>
+
+  <rect x="670" y="404" width="300" height="80" rx="12" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="820" y="430" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#0f172a">Slave PIC (0xA0/0xA1)</text>
+  <text x="820" y="452" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#475569">IRQ8-15: RTC, mouse, IDE...</text>
+  <text x="820" y="470" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#475569">output feeds master's IRQ2 pin</text>
+
+  <line x1="670" y1="444" x2="450" y2="444" stroke="#64748b" stroke-width="3" marker-end="url(#pic-arrow)"/>
+  <text x="560" y="434" text-anchor="middle" font-family="ui-monospace, monospace" font-size="12" fill="#475569">cascade</text>
+
+  <line x1="300" y1="404" x2="300" y2="374" stroke="#64748b" stroke-width="3" marker-end="url(#pic-arrow)"/>
+  <text x="300" y="500" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">Master alone reaches the CPU's INTR pin —</text>
+  <text x="300" y="518" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#64748b">every slave IRQ arrives disguised as the master's IRQ2.</text>
+
+  <rect x="150" y="540" width="820" height="60" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="560" y="565" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#1d4ed8">ICW3 tells each controller about this wiring: the master gets a bitmask (bit 2 set),</text>
+  <text x="560" y="583" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" fill="#1e40af">the slave gets a plain line number (2) — that asymmetry is the whole point of ICW3.</text>
+
+  <defs>
+    <marker id="pic-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+</svg>

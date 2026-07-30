@@ -54,6 +54,10 @@ export default defineConfig({
               slug: "tutorials/03-starting-a-cpp-kernel",
               label: "03 - Starting a C++ Kernel",
             },
+            {
+              slug: "tutorials/04-managing-interrupts",
+              label: "04 - Managing Interrupts and Exceptions",
+            },
           ],
         },
         { slug: "translation-status", label: "Translation status" },

@@ -4,19 +4,35 @@
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
 typedef unsigned int DWORD;
-typedef unsigned long QWORD;
+typedef unsigned long long QWORD;
 
 
-#define MULTIBOOT_MAGIC      0x1BADB002
+#define MULTIBOOT_BOOTLOADER_MAGIC      0x2BADB002
 
 #define	null	((void*)0)
 
+struct multiboot_memory_map_entry
+{
+	DWORD size;
+	DWORD address_low;
+	DWORD address_high;
+	DWORD length_low;
+	DWORD length_high;
+	DWORD type;
+};
+
 struct multiboot_info
 {
-	unsigned long flags;
-	unsigned long mem_lower;
-	unsigned long mem_upper;
-	unsigned long boot_device;
+	DWORD flags;
+	DWORD mem_lower;
+	DWORD mem_upper;
+	DWORD boot_device;
+	DWORD cmdline;
+	DWORD mods_count;
+	DWORD mods_addr;
+	DWORD symbols[4];
+	DWORD mmap_length;
+	DWORD mmap_addr;
 };
 
 

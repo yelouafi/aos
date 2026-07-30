@@ -12,7 +12,7 @@ and internal links have been reviewed.
 | 01 | [Loading the kernel from a floppy disk](./tutorials/01-loading-the-kernel/) | **Published** |
 | 02 | [Entering 32-bit protected mode](./tutorials/02-entering-protected-mode/) | **Published** |
 | 03 | [Starting a C++ kernel](./tutorials/03-starting-a-cpp-kernel/) | **Published** |
-| 04 | Interrupts | Planned |
+| 04 | [Managing interrupts and exceptions](./tutorials/04-managing-interrupts/) | **Published** |
 | 05 | Kernel development | Planned |
 | 06 | Physical memory management | Planned |
 | 07 | Memory allocation | Planned |
